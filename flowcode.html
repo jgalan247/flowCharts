@@ -807,28 +807,34 @@ function setupDragAndDrop() {
 
   document.addEventListener('mouseup', e => {
     if (isDragging && draggingNode) {
-      // Check delete zone
-      const dz = document.getElementById('deleteZone');
-      const dzRect = dz.getBoundingClientRect();
-      if (e.clientX >= dzRect.left && e.clientX <= dzRect.right &&
-          e.clientY >= dzRect.top && e.clientY <= dzRect.bottom) {
-        nodes = nodes.filter(n => n.id !== draggingNode.id);
-        selectedNode = null;
+      if (hasMoved) {
+        // Check delete zone
+        const dz = document.getElementById('deleteZone');
+        const dzRect = dz.getBoundingClientRect();
+        if (e.clientX >= dzRect.left && e.clientX <= dzRect.right &&
+            e.clientY >= dzRect.top && e.clientY <= dzRect.bottom) {
+          nodes = nodes.filter(n => n.id !== draggingNode.id);
+          selectedNode = null;
+        }
+        dz.classList.remove('visible');
+        draggingNode = null;
+        renderFlowchart();
+        generateCode();
       }
-      dz.classList.remove('visible');
+      // If not moved, skip re-render so dblclick can still find the element
     }
     isDragging = false;
     draggingNode = null;
-    renderFlowchart();
-    generateCode();
   });
 
   // Double-click to edit
   svg.addEventListener('dblclick', e => {
     const nodeEl = e.target.closest('.flow-node');
-    if (!nodeEl) return;
-    const node = nodes.find(n => n.id === parseInt(nodeEl.dataset.id));
-    if (node) openModal(node);
+    if (nodeEl) {
+      const node = nodes.find(n => n.id === parseInt(nodeEl.dataset.id));
+      if (node) openModal(node);
+    }
+    renderFlowchart();
   });
 }
 
