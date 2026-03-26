@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flowchart Activities – GCSE Computer Science</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f2ed;
+    --surface: #ffffff;
+    --surface2: #f9f8f5;
+    --border: #e2dfd8;
+    --border2: #ccc9c0;
+    --text: #1a1917;
+    --text2: #5a5850;
+    --text3: #8a8880;
+    --accent: #2c5282;
+    --accent-bg: #ebf0f9;
+    --accent-border: #93b4e0;
+    --green: #1a6b4a;
+    --green-bg: #e6f4ee;
+    --green-border: #7ec9a8;
+    --amber: #7a4c00;
+    --amber-bg: #fdf3df;
+    --amber-border: #f4c56d;
+    --red: #8b1a1a;
+    --red-bg: #fdeaea;
+    --red-border: #f4a0a0;
+    --purple: #4a2c7a;
+    --purple-bg: #f0ebfa;
+    --purple-border: #b89de0;
+    --mono: 'DM Mono', monospace;
+    --sans: 'Sora', sans-serif;
+    --radius: 10px;
+    --radius-lg: 16px;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .page-header {
+    background: var(--text);
+    color: #fff;
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .page-header .badge {
+    background: #fff;
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+  .page-header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -.01em;
+  }
+  .page-header p {
+    font-size: 13px;
+    opacity: .65;
+    margin-top: 2px;
+  }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  .activity-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+  .activity-header {
+    padding: 20px 28px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .act-num {
+    flex-shrink: 0;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--text);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+    margin-top: 1px;
+  }
+  .activity-header h2 {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -.01em;
+  }
+  .activity-header p {
+    font-size: 13px;
+    color: var(--text2);
+    margin-top: 3px;
+  }
+
+  .activity-body { padding: 24px 28px; }
+
+  /* Scenario box */
+  .scenario {
+    background: var(--accent-bg);
+    border: 1px solid var(--accent-border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 22px;
+  }
+  .scenario-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .scenario p { font-size: 14px; color: var(--text); line-height: 1.6; }
+
+  /* Instructions */
+  .instructions {
+    font-size: 13.5px;
+    color: var(--text2);
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+  .instructions strong { color: var(--text); font-weight: 600; }
+
+  /* Legend */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    margin-bottom: 22px;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12px; color: var(--text2);
+  }
+  .legend-shape {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; color: var(--text2);
+    flex-shrink: 0;
+  }
+
+  /* ======= DRAG-AND-DROP CANVAS AREA ======= */
+  .canvas-area {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 20px;
+    min-height: 420px;
+  }
+
+  .shapes-panel {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+  }
+  .shapes-panel-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .07em; color: var(--text3); margin-bottom: 12px;
+  }
+  .draggable-shapes { display: flex; flex-direction: column; gap: 8px; }
+
+  .shape-item {
+    cursor: grab;
+    user-select: none;
+    transition: opacity .15s, transform .15s;
+  }
+  .shape-item:hover { transform: translateX(2px); }
+  .shape-item:active { opacity: .7; cursor: grabbing; }
+
+  .shape-item svg { display: block; width: 100%; }
+
+  /* Drop canvas */
+  .drop-canvas {
+    position: relative;
+    background: var(--surface);
+    border: 2px dashed var(--border2);
+    border-radius: var(--radius);
+    min-height: 420px;
+    overflow: hidden;
+    transition: border-color .2s, background .2s;
+  }
+  .drop-canvas.drag-over {
+    border-color: var(--accent-border);
+    background: var(--accent-bg);
+  }
+  .canvas-hint {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+    color: var(--text3);
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .canvas-hint svg { margin: 0 auto 8px; display: block; opacity: .4; }
+
+  .dropped-shape {
+    position: absolute;
+    cursor: move;
+    user-select: none;
+  }
+  .dropped-shape svg { display: block; }
+  .dropped-shape.selected svg rect,
+  .dropped-shape.selected svg polygon,
+  .dropped-shape.selected svg ellipse {
+    stroke: var(--accent) !important;
+    stroke-width: 2.5 !important;
+  }
+
+  /* Text labels on dropped shapes */
+  .shape-label {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 11px; font-weight: 500;
+    font-family: var(--sans);
+    color: var(--text);
+    text-align: center;
+    pointer-events: none;
+    white-space: nowrap;
+    max-width: 120px;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.3;
+    padding: 0 4px;
+  }
+
+  /* Canvas toolbar */
+  .canvas-toolbar {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;
+    align-items: center;
+  }
+  .btn {
+    font-family: var(--sans);
+    font-size: 12px; font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text2);
+    cursor: pointer;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .btn:hover { background: var(--surface2); border-color: var(--border2); color: var(--text); }
+  .btn.primary {
+    background: var(--text); color: #fff; border-color: var(--text);
+  }
+  .btn.primary:hover { opacity: .85; }
+  .btn.danger { background: var(--red-bg); color: var(--red); border-color: var(--red-border); }
+  .btn.danger:hover { background: var(--red); color: #fff; }
+  .btn.success { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
+
+  /* Edit label input */
+  .label-editor {
+    display: none; align-items: center; gap: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+  }
+  .label-editor.visible { display: flex; }
+  .label-editor label { font-size: 12px; color: var(--text2); white-space: nowrap; }
+  .label-editor input {
+    font-family: var(--sans); font-size: 12px;
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 3px 8px; background: var(--surface); color: var(--text);
+    width: 150px;
+  }
+  .label-editor input:focus { outline: none; border-color: var(--accent-border); }
+
+  /* ======= CODE DISPLAY ======= */
+  .code-block {
+    background: #1e1e2e;
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-bottom: 22px;
+    position: relative;
+    overflow-x: auto;
+  }
+  .code-block pre {
+    font-family: var(--mono);
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: #cdd6f4;
+    white-space: pre;
+  }
+  .kw  { color: #cba6f7; }
+  .fn  { color: #89dceb; }
+  .num { color: #fab387; }
+  .str { color: #a6e3a1; }
+  .cm  { color: #585b70; font-style: italic; }
+  .op  { color: #89b4fa; }
+  .var { color: #cdd6f4; }
+  .code-badge {
+    position: absolute; top: 12px; right: 14px;
+    font-family: var(--mono); font-size: 10px;
+    background: #313244; color: #89b4fa;
+    padding: 3px 8px; border-radius: 4px;
+    font-weight: 500; letter-spacing: .04em;
+  }
+
+  /* ======= SOLUTION REVEAL ======= */
+  .solution-area { margin-top: 24px; }
+  .solution-toggle {
+    font-family: var(--sans);
+    font-size: 13px; font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border2);
+    background: var(--surface);
+    color: var(--text2);
+    cursor: pointer;
+    display: flex; align-items: center; gap: 7px;
+    transition: all .15s;
+  }
+  .solution-toggle:hover { background: var(--surface2); color: var(--text); }
+  .solution-toggle svg { transition: transform .25s; }
+  .solution-toggle.open svg { transform: rotate(180deg); }
+
+  .solution-panel {
+    display: none;
+    margin-top: 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+  }
+  .solution-panel.visible { display: block; }
+  .solution-panel h4 {
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--green); margin-bottom: 12px;
+  }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px; font-weight: 500;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .feedback.incorrect { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+
+  /* Activity 3 – MCQ check */
+  .flowchart-check {
+    margin-top: 22px;
+  }
+  .flowchart-check h3 {
+    font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--text2);
+  }
+  .question {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .question p { font-size: 13.5px; margin-bottom: 10px; }
+  .options { display: flex; flex-direction: column; gap: 6px; }
+  .option-label {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 13px; cursor: pointer;
+    padding: 7px 10px; border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    transition: background .12s, border-color .12s;
+  }
+  .option-label:hover { background: var(--surface2); border-color: var(--border2); }
+  .option-label input { margin-top: 2px; flex-shrink: 0; }
+  .option-label.correct { background: var(--green-bg) !important; border-color: var(--green-border) !important; color: var(--green); }
+  .option-label.incorrect { background: var(--red-bg) !important; border-color: var(--red-border) !important; color: var(--red); }
+
+  .score-bar {
+    margin-top: 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: none;
+  }
+  .score-bar.visible { display: block; }
+  .score-bar p { font-size: 14px; font-weight: 600; }
+  .progress-track {
+    height: 8px; background: var(--border);
+    border-radius: 4px; margin-top: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--green);
+    border-radius: 4px;
+    transition: width .5s ease;
+  }
+
+  @media (max-width: 640px) {
+    .canvas-area { grid-template-columns: 1fr; }
+    .drop-canvas { min-height: 320px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <div class="badge">Edexcel 1CP2</div>
+  </div>
+  <div>
+    <h1>Flowchart Design Activities</h1>
+    <p>Paper 2 — Algorithms &amp; Programming · Build and analyse flowcharts from scenarios and code</p>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!--  ACTIVITY 1 – Theme Park Age Check                          -->
+<!-- ============================================================ -->
+<div class="activity-card" id="act1">
+  <div class="activity-header">
+    <div class="act-num">1</div>
+    <div>
+      <h2>Theme Park Entry — Age Check</h2>
+      <p>Design a flowchart from a written scenario involving a decision</p>
+    </div>
+  </div>
+  <div class="activity-body">
+
+    <div class="scenario">
+      <div class="scenario-label">Scenario</div>
+      <p>A theme park checks the age of every visitor before entry. <strong>If the visitor is 12 years old or over</strong>, they may enter the park unaccompanied. <strong>Otherwise</strong>, they must be accompanied by an adult. In both cases, a message is displayed confirming the entry condition, and the process ends.</p>
+    </div>
+
+    <div class="instructions">
+      <strong>Task:</strong> Using the shapes in the panel on the left, drag and drop them onto the canvas to construct a correct flowchart for this scenario. Double-click any placed shape to edit its label. Add arrows by selecting two shapes and pressing <strong>Add Arrow</strong>. When finished, check your structure using the questions below, or reveal the model solution.
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-shape">
+        <svg width="34" height="22" viewBox="0 0 34 22"><rect x="1" y="1" width="32" height="20" rx="10" fill="none" stroke="#8a8880" stroke-width="1.5"/></svg>
+      </div>Terminal (Start/End)</div>
+      <div class="legend-item"><div class="legend-shape">
+        <svg width="34" height="26" viewBox="0 0 34 26"><rect x="1" y="1" width="32" height="24" rx="3" fill="none" stroke="#8a8880" stroke-width="1.5"/></svg>
+      </div>Process</div>
+      <div class="legend-item"><div class="legend-shape">
+        <svg width="34" height="26" viewBox="0 0 34 26"><polygon points="17,1 33,13 17,25 1,13" fill="none" stroke="#8a8880" stroke-width="1.5"/></svg>
+      </div>Decision (diamond)</div>
+      <div class="legend-item"><div class="legend-shape">
+        <svg width="34" height="26" viewBox="0 0 34 26"><rect x="1" y="5" width="32" height="16" rx="2" fill="none" stroke="#8a8880" stroke-width="1.5"/><line x1="1" y1="5" x2="6" y2="1" stroke="#8a8880" stroke-width="1.5"/><line x1="33" y1="5" x2="28" y2="1" stroke="#8a8880" stroke-width="1.5"/></svg>
+      </div>Input/Output (parallelogram)</div>
+    </div>
+
+    <div class="canvas-area">
+      <div class="shapes-panel">
+        <div class="shapes-panel-label">Shapes</div>
+        <div class="draggable-shapes" id="shapes1">
+
+          <div class="shape-item" draggable="true" data-type="terminal" data-canvas="canvas1">
+            <svg width="160" height="36" viewBox="0 0 160 36">
+              <rect x="1" y="1" width="158" height="34" rx="17" fill="#f0ebfa" stroke="#b89de0" stroke-width="1.5"/>
+              <text x="80" y="22" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#4a2c7a" text-anchor="middle">Terminal</text>
+            </svg>
+          </div>
+
+          <div class="shape-item" draggable="true" data-type="process" data-canvas="canvas1">
+            <svg width="160" height="36" viewBox="0 0 160 36">
+              <rect x="1" y="1" width="158" height="34" rx="4" fill="#e6f1fb" stroke="#93b4e0" stroke-width="1.5"/>
+              <text x="80" y="22" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#2c5282" text-anchor="middle">Process</text>
+            </svg>
+          </div>
+
+          <div class="shape-item" draggable="true" data-type="decision" data-canvas="canvas1">
+            <svg width="160" height="50" viewBox="0 0 160 50">
+              <polygon points="80,2 158,25 80,48 2,25" fill="#fdf3df" stroke="#f4c56d" stroke-width="1.5"/>
+              <text x="80" y="29" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#7a4c00" text-anchor="middle">Decision</text>
+            </svg>
+          </div>
+
+          <div class="shape-item" draggable="true" data-type="io" data-canvas="canvas1">
+            <svg width="160" height="38" viewBox="0 0 160 38">
+              <polygon points="20,1 159,1 140,37 1,37" fill="#e6f4ee" stroke="#7ec9a8" stroke-width="1.5"/>
+              <text x="82" y="23" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#1a6b4a" text-anchor="middle">Input / Output</text>
+            </svg>
+          </div>
+
+        </div>
+        <div style="margin-top:16px; font-size:11px; color:var(--text3); line-height:1.6;">
+          <strong style="color:var(--text2)">Tip:</strong> Drag shapes onto the canvas. Double-click to label. Select 2 shapes and click <em>Add Arrow</em> to connect them.
+        </div>
+      </div>
+
+      <div>
+        <div class="drop-canvas" id="canvas1">
+          <div class="canvas-hint" id="hint1">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="4" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><path d="M16 10v12M10 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Drag shapes here to start building<br>your flowchart
+          </div>
+        </div>
+        <div class="canvas-toolbar">
+          <button class="btn primary" onclick="addArrow('canvas1')">+ Add Arrow</button>
+          <div class="label-editor" id="editor1">
+            <label>Label:</label>
+            <input type="text" id="labelInput1" placeholder="e.g. Age ≥ 12?" oninput="updateLabel('canvas1')">
+          </div>
+          <button class="btn danger" onclick="deleteSelected('canvas1')">Delete selected</button>
+          <button class="btn" onclick="clearCanvas('canvas1')">Clear all</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="solution-area">
+      <button class="solution-toggle" id="sol1-btn" onclick="toggleSolution('sol1')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Show model solution
+      </button>
+      <div class="solution-panel" id="sol1">
+        <h4>Model Solution — Activity 1</h4>
+        <svg width="100%" viewBox="0 0 500 580" style="max-width:500px;display:block;margin:0 auto;">
+          <defs>
+            <marker id="arr1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="#1a1917" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+          <!-- START -->
+          <g>
+            <rect x="165" y="16" width="170" height="38" rx="19" fill="#f0ebfa" stroke="#b89de0" stroke-width="1.5"/>
+            <text x="250" y="38" font-family="Sora,sans-serif" font-size="13" font-weight="600" fill="#4a2c7a" text-anchor="middle" dominant-baseline="central">START</text>
+          </g>
+          <!-- Arrow down -->
+          <line x1="250" y1="54" x2="250" y2="88" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr1)"/>
+          <!-- INPUT -->
+          <g>
+            <polygon points="185,88 315,88 298,124 168,124" fill="#e6f4ee" stroke="#7ec9a8" stroke-width="1.5"/>
+            <text x="250" y="108" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#1a6b4a" text-anchor="middle" dominant-baseline="central">INPUT age</text>
+          </g>
+          <line x1="250" y1="124" x2="250" y2="158" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr1)"/>
+          <!-- DECISION -->
+          <g>
+            <polygon points="250,158 340,200 250,242 160,200" fill="#fdf3df" stroke="#f4c56d" stroke-width="1.5"/>
+            <text x="250" y="196" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#7a4c00" text-anchor="middle" dominant-baseline="central">age ≥ 12?</text>
+          </g>
+          <!-- YES arrow right -->
+          <line x1="340" y1="200" x2="400" y2="200" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr1)"/>
+          <text x="368" y="194" font-family="Sora,sans-serif" font-size="11" fill="#1a6b4a" text-anchor="middle">YES</text>
+          <!-- YES output -->
+          <g>
+            <polygon points="335,272 465,272 448,308 318,308" fill="#e6f4ee" stroke="#7ec9a8" stroke-width="1.5"/>
+            <text x="393" y="287" font-family="Sora,sans-serif" font-size="11" font-weight="600" fill="#1a6b4a" text-anchor="middle" dominant-baseline="central">OUTPUT "Enter alone"</text>
+          </g>
+          <line x1="400" y1="200" x2="400" y2="272" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr1)"/>
+          <!-- NO arrow left -->
+          <line x1="160" y1="200" x2="100" y2="200" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr1)"/>
+          <text x="132" y="194" font-family="Sora,sans-serif" font-size="11" fill="#8b1a1a" text-anchor="middle">NO</text>
+          <!-- NO output -->
+          <g>
+            <polygon points="35,272 165,272 148,308 18,308" fill="#e6f4ee" stroke="#7ec9a8" stroke-width="1.5"/>
+            <text x="95" y="287" font-family="Sora,sans-serif" font-size="11" font-weight="600" fill="#1a6b4a" text-anchor="middle" dominant-baseline="central">OUTPUT "Need adult"</text>
+          </g>
+          <line x1="100" y1="200" x2="100" y2="272" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr1)"/>
+          <!-- Both join at bottom -->
+          <line x1="95" y1="308" x2="95" y2="450" stroke="#1a1917" stroke-width="1.2"/>
+          <line x1="400" y1="308" x2="400" y2="450" stroke="#1a1917" stroke-width="1.2"/>
+          <line x1="95" y1="450" x2="400" y2="450" stroke="#1a1917" stroke-width="1.2"/>
+          <line x1="250" y1="450" x2="250" y2="488" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr1)"/>
+          <!-- END -->
+          <g>
+            <rect x="165" y="488" width="170" height="38" rx="19" fill="#f0ebfa" stroke="#b89de0" stroke-width="1.5"/>
+            <text x="250" y="508" font-family="Sora,sans-serif" font-size="13" font-weight="600" fill="#4a2c7a" text-anchor="middle" dominant-baseline="central">END</text>
+          </g>
+        </svg>
+        <p style="font-size:12px;color:var(--text3);margin-top:10px;text-align:center">Both branches merge before the END terminal — this is a key structural feature.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  ACTIVITY 2 – Cinema Discount Check                         -->
+<!-- ============================================================ -->
+<div class="activity-card" id="act2">
+  <div class="activity-header">
+    <div class="act-num">2</div>
+    <div>
+      <h2>Cinema Ticket — Discount Check</h2>
+      <p>Design a flowchart involving a compound Boolean condition</p>
+    </div>
+  </div>
+  <div class="activity-body">
+
+    <div class="scenario">
+      <div class="scenario-label">Scenario</div>
+      <p>A cinema system checks whether a customer qualifies for a 50% discount. The discount applies <strong>only if</strong> the customer is a student <strong>OR</strong> holds a discount card, <strong>AND</strong> the day of the week is <strong>Sunday</strong>. If the condition is met, the ticket price is halved and the discounted price is displayed. Otherwise, the full price is displayed. The system then ends.</p>
+    </div>
+
+    <div class="instructions">
+      <strong>Task:</strong> Build the flowchart for this compound condition. Notice there are <em>two</em> decision points needed — consider how to check both conditions in sequence. Drag shapes from the panel, label them, and connect with arrows.
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-shape">
+        <svg width="34" height="22" viewBox="0 0 34 22"><rect x="1" y="1" width="32" height="20" rx="10" fill="none" stroke="#8a8880" stroke-width="1.5"/></svg>
+      </div>Terminal</div>
+      <div class="legend-item"><div class="legend-shape">
+        <svg width="34" height="26" viewBox="0 0 34 26"><rect x="1" y="1" width="32" height="24" rx="3" fill="none" stroke="#8a8880" stroke-width="1.5"/></svg>
+      </div>Process</div>
+      <div class="legend-item"><div class="legend-shape">
+        <svg width="34" height="26" viewBox="0 0 34 26"><polygon points="17,1 33,13 17,25 1,13" fill="none" stroke="#8a8880" stroke-width="1.5"/></svg>
+      </div>Decision</div>
+      <div class="legend-item"><div class="legend-shape">
+        <svg width="34" height="26" viewBox="0 0 34 26"><polygon points="6,1 33,1 27,25 0,25" fill="none" stroke="#8a8880" stroke-width="1.5"/></svg>
+      </div>Input/Output</div>
+    </div>
+
+    <div class="canvas-area">
+      <div class="shapes-panel">
+        <div class="shapes-panel-label">Shapes</div>
+        <div class="draggable-shapes" id="shapes2">
+
+          <div class="shape-item" draggable="true" data-type="terminal" data-canvas="canvas2">
+            <svg width="160" height="36" viewBox="0 0 160 36">
+              <rect x="1" y="1" width="158" height="34" rx="17" fill="#f0ebfa" stroke="#b89de0" stroke-width="1.5"/>
+              <text x="80" y="22" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#4a2c7a" text-anchor="middle">Terminal</text>
+            </svg>
+          </div>
+          <div class="shape-item" draggable="true" data-type="process" data-canvas="canvas2">
+            <svg width="160" height="36" viewBox="0 0 160 36">
+              <rect x="1" y="1" width="158" height="34" rx="4" fill="#e6f1fb" stroke="#93b4e0" stroke-width="1.5"/>
+              <text x="80" y="22" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#2c5282" text-anchor="middle">Process</text>
+            </svg>
+          </div>
+          <div class="shape-item" draggable="true" data-type="decision" data-canvas="canvas2">
+            <svg width="160" height="50" viewBox="0 0 160 50">
+              <polygon points="80,2 158,25 80,48 2,25" fill="#fdf3df" stroke="#f4c56d" stroke-width="1.5"/>
+              <text x="80" y="29" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#7a4c00" text-anchor="middle">Decision</text>
+            </svg>
+          </div>
+          <div class="shape-item" draggable="true" data-type="io" data-canvas="canvas2">
+            <svg width="160" height="38" viewBox="0 0 160 38">
+              <polygon points="20,1 159,1 140,37 1,37" fill="#e6f4ee" stroke="#7ec9a8" stroke-width="1.5"/>
+              <text x="82" y="23" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#1a6b4a" text-anchor="middle">Input / Output</text>
+            </svg>
+          </div>
+
+        </div>
+        <div style="margin-top:16px; font-size:11px; color:var(--text3); line-height:1.6;">
+          <strong style="color:var(--text2)">Hint:</strong> You will need <strong>2 decision diamonds</strong> for the two conditions. Think about which to check first.
+        </div>
+      </div>
+
+      <div>
+        <div class="drop-canvas" id="canvas2">
+          <div class="canvas-hint" id="hint2">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="4" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><path d="M16 10v12M10 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Drag shapes here to start building<br>your flowchart
+          </div>
+        </div>
+        <div class="canvas-toolbar">
+          <button class="btn primary" onclick="addArrow('canvas2')">+ Add Arrow</button>
+          <div class="label-editor" id="editor2">
+            <label>Label:</label>
+            <input type="text" id="labelInput2" placeholder="e.g. Sunday?" oninput="updateLabel('canvas2')">
+          </div>
+          <button class="btn danger" onclick="deleteSelected('canvas2')">Delete selected</button>
+          <button class="btn" onclick="clearCanvas('canvas2')">Clear all</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="solution-area">
+      <button class="solution-toggle" id="sol2-btn" onclick="toggleSolution('sol2')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Show model solution
+      </button>
+      <div class="solution-panel" id="sol2">
+        <h4>Model Solution — Activity 2</h4>
+        <svg width="100%" viewBox="0 0 560 700" style="max-width:560px;display:block;margin:0 auto;">
+          <defs>
+            <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="#1a1917" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+          <!-- START -->
+          <rect x="190" y="16" width="160" height="36" rx="18" fill="#f0ebfa" stroke="#b89de0" stroke-width="1.5"/>
+          <text x="270" y="36" font-family="Sora,sans-serif" font-size="13" font-weight="600" fill="#4a2c7a" text-anchor="middle" dominant-baseline="central">START</text>
+          <line x1="270" y1="52" x2="270" y2="80" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr2)"/>
+          <!-- INPUT -->
+          <polygon points="195,80 345,80 328,112 178,112" fill="#e6f4ee" stroke="#7ec9a8" stroke-width="1.5"/>
+          <text x="265" y="98" font-family="Sora,sans-serif" font-size="11.5" font-weight="600" fill="#1a6b4a" text-anchor="middle" dominant-baseline="central">INPUT day, student, card</text>
+          <line x1="270" y1="112" x2="270" y2="144" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr2)"/>
+          <!-- DECISION 1: Sunday? -->
+          <polygon points="270,144 370,190 270,236 170,190" fill="#fdf3df" stroke="#f4c56d" stroke-width="1.5"/>
+          <text x="270" y="186" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#7a4c00" text-anchor="middle" dominant-baseline="central">day = Sunday?</text>
+          <!-- NO arrow right from D1 -->
+          <line x1="370" y1="190" x2="460" y2="190" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr2)"/>
+          <text x="412" y="183" font-family="Sora,sans-serif" font-size="11" fill="#8b1a1a" text-anchor="middle">NO</text>
+          <!-- Full price output (right) -->
+          <polygon points="400,450 530,450 512,484 382,484" fill="#e6f4ee" stroke="#7ec9a8" stroke-width="1.5"/>
+          <text x="458" y="469" font-family="Sora,sans-serif" font-size="11" font-weight="600" fill="#1a6b4a" text-anchor="middle" dominant-baseline="central">OUTPUT full price</text>
+          <line x1="460" y1="190" x2="460" y2="450" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr2)"/>
+          <!-- YES arrow down from D1 -->
+          <line x1="270" y1="236" x2="270" y2="268" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr2)"/>
+          <text x="256" y="256" font-family="Sora,sans-serif" font-size="11" fill="#1a6b4a">YES</text>
+          <!-- DECISION 2: student OR card? -->
+          <polygon points="270,268 390,318 270,368 150,318" fill="#fdf3df" stroke="#f4c56d" stroke-width="1.5"/>
+          <text x="270" y="311" font-family="Sora,sans-serif" font-size="11.5" font-weight="600" fill="#7a4c00" text-anchor="middle">student OR</text>
+          <text x="270" y="328" font-family="Sora,sans-serif" font-size="11.5" font-weight="600" fill="#7a4c00" text-anchor="middle">discount card?</text>
+          <!-- NO arrow left from D2 -->
+          <line x1="150" y1="318" x2="80" y2="318" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr2)"/>
+          <text x="116" y="311" font-family="Sora,sans-serif" font-size="11" fill="#8b1a1a" text-anchor="middle">NO</text>
+          <!-- Full price 2 (left) -->
+          <polygon points="15,450 145,450 127,484 -3,484" fill="#e6f4ee" stroke="#7ec9a8" stroke-width="1.5"/>
+          <text x="73" y="469" font-family="Sora,sans-serif" font-size="11" font-weight="600" fill="#1a6b4a" text-anchor="middle" dominant-baseline="central">OUTPUT full price</text>
+          <line x1="80" y1="318" x2="80" y2="450" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr2)"/>
+          <!-- YES arrow down from D2 -->
+          <line x1="270" y1="368" x2="270" y2="400" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr2)"/>
+          <text x="256" y="388" font-family="Sora,sans-serif" font-size="11" fill="#1a6b4a">YES</text>
+          <!-- Process: halve price -->
+          <rect x="175" y="400" width="190" height="32" rx="4" fill="#e6f1fb" stroke="#93b4e0" stroke-width="1.5"/>
+          <text x="270" y="418" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#2c5282" text-anchor="middle" dominant-baseline="central">price = price * 0.5</text>
+          <line x1="270" y1="432" x2="270" y2="450" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr2)"/>
+          <!-- Discount output (middle) -->
+          <polygon points="185,450 355,450 337,484 167,484" fill="#e6f4ee" stroke="#7ec9a8" stroke-width="1.5"/>
+          <text x="263" y="469" font-family="Sora,sans-serif" font-size="11" font-weight="600" fill="#1a6b4a" text-anchor="middle" dominant-baseline="central">OUTPUT discount price</text>
+          <!-- Join all 3 -->
+          <line x1="80" y1="484" x2="80" y2="570" stroke="#1a1917" stroke-width="1.2"/>
+          <line x1="270" y1="484" x2="270" y2="570" stroke="#1a1917" stroke-width="1.2"/>
+          <line x1="460" y1="484" x2="460" y2="570" stroke="#1a1917" stroke-width="1.2"/>
+          <line x1="80" y1="570" x2="460" y2="570" stroke="#1a1917" stroke-width="1.2"/>
+          <line x1="270" y1="570" x2="270" y2="602" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr2)"/>
+          <!-- END -->
+          <rect x="190" y="602" width="160" height="36" rx="18" fill="#f0ebfa" stroke="#b89de0" stroke-width="1.5"/>
+          <text x="270" y="622" font-family="Sora,sans-serif" font-size="13" font-weight="600" fill="#4a2c7a" text-anchor="middle" dominant-baseline="central">END</text>
+        </svg>
+        <p style="font-size:12px;color:var(--text3);margin-top:10px;text-align:center">
+          The compound AND is handled by two sequential decisions. All three output branches merge before END.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!--  ACTIVITY 3 – Code-to-Flowchart (Iteration)                -->
+<!-- ============================================================ -->
+<div class="activity-card" id="act3">
+  <div class="activity-header">
+    <div class="act-num">3</div>
+    <div>
+      <h2>Code → Flowchart: Iteration</h2>
+      <p>Produce the equivalent flowchart for a Python snippet containing a loop</p>
+    </div>
+  </div>
+  <div class="activity-body">
+
+    <div class="instructions">
+      <strong>Task:</strong> Study the Python code below carefully. Then answer the comprehension questions to confirm your understanding, and use the canvas to draw the equivalent flowchart. Note how the loop structure maps to a decision diamond and a back-edge (arrow looping back).
+    </div>
+
+    <div class="code-block">
+      <div class="code-badge">Python</div>
+      <pre><span class="cm"># Sum integers from 1 to a user-supplied limit</span>
+<span class="var">total</span> <span class="op">=</span> <span class="num">0</span>
+<span class="var">counter</span> <span class="op">=</span> <span class="num">1</span>
+<span class="var">limit</span> <span class="op">=</span> <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter limit: "</span>))
+
+<span class="kw">while</span> <span class="var">counter</span> <span class="op">&lt;=</span> <span class="var">limit</span><span class="op">:</span>
+    <span class="var">total</span> <span class="op">=</span> <span class="var">total</span> <span class="op">+</span> <span class="var">counter</span>
+    <span class="var">counter</span> <span class="op">=</span> <span class="var">counter</span> <span class="op">+</span> <span class="num">1</span>
+
+<span class="fn">print</span>(<span class="str">"Sum ="</span><span class="op">,</span> <span class="var">total</span>)</pre>
+    </div>
+
+    <div class="flowchart-check">
+      <h3>Comprehension questions — answer before you draw</h3>
+
+      <div class="question" id="q1">
+        <p><strong>Q1.</strong> What shape is used to represent the <code>while counter &lt;= limit</code> condition in a flowchart?</p>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q1" value="a"> Rectangle (process box)</label>
+          <label class="option-label"><input type="radio" name="q1" value="b"> Diamond (decision)</label>
+          <label class="option-label"><input type="radio" name="q1" value="c"> Rounded rectangle (terminal)</label>
+          <label class="option-label"><input type="radio" name="q1" value="d"> Parallelogram (input/output)</label>
+        </div>
+      </div>
+
+      <div class="question" id="q2">
+        <p><strong>Q2.</strong> How many process boxes are needed <em>inside</em> the loop body?</p>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q2" value="a"> 1</label>
+          <label class="option-label"><input type="radio" name="q2" value="b"> 2</label>
+          <label class="option-label"><input type="radio" name="q2" value="c"> 3</label>
+          <label class="option-label"><input type="radio" name="q2" value="d"> 0 — they map to the decision shape</label>
+        </div>
+      </div>
+
+      <div class="question" id="q3">
+        <p><strong>Q3.</strong> In the flowchart, the "YES" branch of the <code>counter &lt;= limit</code> decision should point…</p>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q3" value="a"> Downward to the END terminal</label>
+          <label class="option-label"><input type="radio" name="q3" value="b"> Into the loop body (total = total + counter)</label>
+          <label class="option-label"><input type="radio" name="q3" value="c"> To the OUTPUT of total</label>
+          <label class="option-label"><input type="radio" name="q3" value="d"> Back to the START</label>
+        </div>
+      </div>
+
+      <div class="question" id="q4">
+        <p><strong>Q4.</strong> After the last iteration, which flowchart element comes immediately after the decision's "NO" branch?</p>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q4" value="a"> Another decision box</label>
+          <label class="option-label"><input type="radio" name="q4" value="b"> An assignment process box</label>
+          <label class="option-label"><input type="radio" name="q4" value="c"> An output parallelogram showing the sum</label>
+          <label class="option-label"><input type="radio" name="q4" value="d"> The END terminal directly</label>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn primary" onclick="checkAnswers()">Check answers</button>
+        <button class="btn" onclick="resetAnswers()">Reset</button>
+      </div>
+
+      <div class="score-bar" id="scorebar">
+        <p id="score-text"></p>
+        <div class="progress-track">
+          <div class="progress-fill" id="score-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas for activity 3 -->
+    <div style="margin-top:28px">
+      <p style="font-size:13.5px;color:var(--text2);margin-bottom:16px;">Now draw the full flowchart for the code above on the canvas:</p>
+
+      <div class="canvas-area">
+        <div class="shapes-panel">
+          <div class="shapes-panel-label">Shapes</div>
+          <div class="draggable-shapes" id="shapes3">
+            <div class="shape-item" draggable="true" data-type="terminal" data-canvas="canvas3">
+              <svg width="160" height="36" viewBox="0 0 160 36"><rect x="1" y="1" width="158" height="34" rx="17" fill="#f0ebfa" stroke="#b89de0" stroke-width="1.5"/><text x="80" y="22" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#4a2c7a" text-anchor="middle">Terminal</text></svg>
+            </div>
+            <div class="shape-item" draggable="true" data-type="process" data-canvas="canvas3">
+              <svg width="160" height="36" viewBox="0 0 160 36"><rect x="1" y="1" width="158" height="34" rx="4" fill="#e6f1fb" stroke="#93b4e0" stroke-width="1.5"/><text x="80" y="22" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#2c5282" text-anchor="middle">Process</text></svg>
+            </div>
+            <div class="shape-item" draggable="true" data-type="decision" data-canvas="canvas3">
+              <svg width="160" height="50" viewBox="0 0 160 50"><polygon points="80,2 158,25 80,48 2,25" fill="#fdf3df" stroke="#f4c56d" stroke-width="1.5"/><text x="80" y="29" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#7a4c00" text-anchor="middle">Decision</text></svg>
+            </div>
+            <div class="shape-item" draggable="true" data-type="io" data-canvas="canvas3">
+              <svg width="160" height="38" viewBox="0 0 160 38"><polygon points="20,1 159,1 140,37 1,37" fill="#e6f4ee" stroke="#7ec9a8" stroke-width="1.5"/><text x="82" y="23" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#1a6b4a" text-anchor="middle">Input / Output</text></svg>
+            </div>
+          </div>
+          <div style="margin-top:16px;font-size:11px;color:var(--text3);line-height:1.6;">
+            <strong style="color:var(--text2)">Key:</strong> The loop back-edge is an arrow from the bottom of the loop body pointing <em>back up</em> to the decision diamond.
+          </div>
+        </div>
+        <div>
+          <div class="drop-canvas" id="canvas3">
+            <div class="canvas-hint" id="hint3">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="4" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><path d="M16 10v12M10 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              Drag shapes here to start building<br>your flowchart
+            </div>
+          </div>
+          <div class="canvas-toolbar">
+            <button class="btn primary" onclick="addArrow('canvas3')">+ Add Arrow</button>
+            <div class="label-editor" id="editor3">
+              <label>Label:</label>
+              <input type="text" id="labelInput3" placeholder="e.g. counter ≤ limit?" oninput="updateLabel('canvas3')">
+            </div>
+            <button class="btn danger" onclick="deleteSelected('canvas3')">Delete selected</button>
+            <button class="btn" onclick="clearCanvas('canvas3')">Clear all</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="solution-area">
+      <button class="solution-toggle" id="sol3-btn" onclick="toggleSolution('sol3')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Show model solution
+      </button>
+      <div class="solution-panel" id="sol3">
+        <h4>Model Solution — Activity 3</h4>
+        <svg width="100%" viewBox="0 0 480 740" style="max-width:480px;display:block;margin:0 auto;">
+          <defs>
+            <marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="#1a1917" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+          <!-- START -->
+          <rect x="160" y="14" width="160" height="36" rx="18" fill="#f0ebfa" stroke="#b89de0" stroke-width="1.5"/>
+          <text x="240" y="34" font-family="Sora,sans-serif" font-size="13" font-weight="600" fill="#4a2c7a" text-anchor="middle" dominant-baseline="central">START</text>
+          <line x1="240" y1="50" x2="240" y2="80" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr3)"/>
+          <!-- Init: total = 0, counter = 1 -->
+          <rect x="120" y="80" width="240" height="32" rx="4" fill="#e6f1fb" stroke="#93b4e0" stroke-width="1.5"/>
+          <text x="240" y="98" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#2c5282" text-anchor="middle" dominant-baseline="central">total = 0 · counter = 1</text>
+          <line x1="240" y1="112" x2="240" y2="140" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr3)"/>
+          <!-- INPUT limit -->
+          <polygon points="170,140 310,140 292,172 152,172" fill="#e6f4ee" stroke="#7ec9a8" stroke-width="1.5"/>
+          <text x="232" y="158" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#1a6b4a" text-anchor="middle" dominant-baseline="central">INPUT limit</text>
+          <line x1="240" y1="172" x2="240" y2="202" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr3)"/>
+          <!-- DECISION: counter <= limit -->
+          <polygon points="240,202 360,252 240,302 120,252" fill="#fdf3df" stroke="#f4c56d" stroke-width="1.5"/>
+          <text x="240" y="248" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#7a4c00" text-anchor="middle">counter</text>
+          <text x="240" y="263" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#7a4c00" text-anchor="middle">≤ limit?</text>
+          <!-- YES arrow down -->
+          <line x1="240" y1="302" x2="240" y2="332" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr3)"/>
+          <text x="226" y="320" font-family="Sora,sans-serif" font-size="11" fill="#1a6b4a">YES</text>
+          <!-- Process: total = total + counter -->
+          <rect x="110" y="332" width="260" height="32" rx="4" fill="#e6f1fb" stroke="#93b4e0" stroke-width="1.5"/>
+          <text x="240" y="350" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#2c5282" text-anchor="middle" dominant-baseline="central">total = total + counter</text>
+          <line x1="240" y1="364" x2="240" y2="396" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr3)"/>
+          <!-- Process: counter = counter + 1 -->
+          <rect x="110" y="396" width="260" height="32" rx="4" fill="#e6f1fb" stroke="#93b4e0" stroke-width="1.5"/>
+          <text x="240" y="414" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#2c5282" text-anchor="middle" dominant-baseline="central">counter = counter + 1</text>
+          <!-- Loop back arrow -->
+          <line x1="240" y1="428" x2="240" y2="446" stroke="#1a1917" stroke-width="1.2"/>
+          <line x1="240" y1="446" x2="60" y2="446" stroke="#1a1917" stroke-width="1.2"/>
+          <line x1="60" y1="446" x2="60" y2="252" stroke="#1a1917" stroke-width="1.2"/>
+          <line x1="60" y1="252" x2="118" y2="252" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr3)"/>
+          <text x="44" y="352" font-family="Sora,sans-serif" font-size="11" fill="#8a8880" writing-mode="tb" dominant-baseline="central">loop back</text>
+          <!-- NO arrow right from decision -->
+          <line x1="360" y1="252" x2="420" y2="252" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr3)"/>
+          <text x="388" y="245" font-family="Sora,sans-serif" font-size="11" fill="#8b1a1a" text-anchor="middle">NO</text>
+          <line x1="420" y1="252" x2="420" y2="560" stroke="#1a1917" stroke-width="1.2"/>
+          <line x1="420" y1="560" x2="270" y2="560" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr3)"/>
+          <!-- OUTPUT total -->
+          <polygon points="155,560 325,560 308,592 138,592" fill="#e6f4ee" stroke="#7ec9a8" stroke-width="1.5"/>
+          <text x="233" y="578" font-family="Sora,sans-serif" font-size="12" font-weight="600" fill="#1a6b4a" text-anchor="middle" dominant-baseline="central">OUTPUT total</text>
+          <line x1="240" y1="592" x2="240" y2="622" stroke="#1a1917" stroke-width="1.2" marker-end="url(#arr3)"/>
+          <!-- END -->
+          <rect x="160" y="622" width="160" height="36" rx="18" fill="#f0ebfa" stroke="#b89de0" stroke-width="1.5"/>
+          <text x="240" y="642" font-family="Sora,sans-serif" font-size="13" font-weight="600" fill="#4a2c7a" text-anchor="middle" dominant-baseline="central">END</text>
+        </svg>
+        <p style="font-size:12px;color:var(--text3);margin-top:10px;text-align:center">
+          The back-edge (loop arrow) returns from the bottom of the loop body to the decision diamond — this is how iteration is represented in a flowchart.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+/* =========================================================
+   DRAG & DROP CANVAS ENGINE
+   ========================================================= */
+const canvasState = {
+  canvas1: { shapes: [], arrows: [], selected: [], nextId: 0 },
+  canvas2: { shapes: [], arrows: [], nextId: 0, selected: [] },
+  canvas3: { shapes: [], arrows: [], nextId: 0, selected: [] },
+};
+
+const shapeW = { terminal: 140, process: 150, decision: 140, io: 150 };
+const shapeH = { terminal: 36, process: 36, decision: 50, io: 40 };
+
+function makeShapeSVG(type, label) {
+  const w = shapeW[type]; const h = shapeH[type];
+  const lbl = label || type.charAt(0).toUpperCase() + type.slice(1);
+  let shape = '';
+  if (type === 'terminal') {
+    shape = `<rect x="0.75" y="0.75" width="${w-1.5}" height="${h-1.5}" rx="${h/2}" fill="${type==='terminal'?'#f0ebfa':'#f0ebfa'}" stroke="#b89de0" stroke-width="1.5"/>`;
+  } else if (type === 'process') {
+    shape = `<rect x="0.75" y="0.75" width="${w-1.5}" height="${h-1.5}" rx="4" fill="#e6f1fb" stroke="#93b4e0" stroke-width="1.5"/>`;
+  } else if (type === 'decision') {
+    const hw = w/2; const hh = h/2;
+    shape = `<polygon points="${hw},1 ${w-1},${hh} ${hw},${h-1} 1,${hh}" fill="#fdf3df" stroke="#f4c56d" stroke-width="1.5"/>`;
+  } else if (type === 'io') {
+    const off = 14;
+    shape = `<polygon points="${off},1 ${w-1},1 ${w-1-off},${h-1} 1,${h-1}" fill="#e6f4ee" stroke="#7ec9a8" stroke-width="1.5"/>`;
+  }
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block;overflow:visible">${shape}</svg>`;
+}
+
+function textColour(type) {
+  return { terminal:'#4a2c7a', process:'#2c5282', decision:'#7a4c00', io:'#1a6b4a' }[type];
+}
+
+document.querySelectorAll('.shape-item').forEach(item => {
+  item.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('shape-type', item.dataset.type);
+    e.dataTransfer.setData('canvas-id', item.dataset.canvas);
+  });
+});
+
+document.querySelectorAll('.drop-canvas').forEach(canvas => {
+  const id = canvas.id;
+  canvas.addEventListener('dragover', e => { e.preventDefault(); canvas.classList.add('drag-over'); });
+  canvas.addEventListener('dragleave', () => canvas.classList.remove('drag-over'));
+  canvas.addEventListener('drop', e => {
+    e.preventDefault();
+    canvas.classList.remove('drag-over');
+    const type = e.dataTransfer.getData('shape-type');
+    if (!type) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left - shapeW[type]/2;
+    const y = e.clientY - rect.top - shapeH[type]/2;
+    addShape(id, type, Math.max(4, x), Math.max(4, y));
+    document.getElementById('hint'+id.replace('canvas','')) && (document.getElementById('hint'+id.replace('canvas','')).style.display = 'none');
+  });
+});
+
+function addShape(canvasId, type, x, y, label) {
+  const state = canvasState[canvasId];
+  const sid = canvasId + '_s' + (state.nextId++);
+  const el = document.createElement('div');
+  el.className = 'dropped-shape';
+  el.id = sid;
+  el.dataset.type = type;
+  el.dataset.label = label || '';
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  el.style.width = shapeW[type] + 'px';
+  el.style.height = shapeH[type] + 'px';
+  el.innerHTML = makeShapeSVG(type, label) + `<div class="shape-label" style="color:${textColour(type)}">${label||''}</div>`;
+
+  let dragging = false, ox = 0, oy = 0;
+  el.addEventListener('mousedown', ev => {
+    if (ev.target.tagName === 'INPUT') return;
+    selectShape(canvasId, sid);
+    dragging = true; ox = ev.clientX - el.offsetLeft; oy = ev.clientY - el.offsetTop;
+    ev.preventDefault();
+  });
+  document.addEventListener('mousemove', ev => {
+    if (!dragging) return;
+    const canvas = document.getElementById(canvasId);
+    const cr = canvas.getBoundingClientRect();
+    const nx = Math.max(0, Math.min(ev.clientX - cr.left - ox + el.offsetLeft, cr.width - el.offsetWidth));
+    const ny = Math.max(0, Math.min(ev.clientY - cr.top  - oy + el.offsetTop,  cr.height - el.offsetHeight));
+    el.style.left = nx + 'px'; el.style.top = ny + 'px';
+    const s = state.shapes.find(s=>s.id===sid);
+    if (s) { s.x = nx; s.y = ny; }
+    redrawArrows(canvasId);
+  });
+  document.addEventListener('mouseup', () => { dragging = false; });
+  el.addEventListener('dblclick', () => { selectShape(canvasId, sid); showEditor(canvasId); });
+
+  document.getElementById(canvasId).appendChild(el);
+  state.shapes.push({ id: sid, type, x, y, label: label||'' });
+}
+
+function selectShape(canvasId, sid) {
+  const state = canvasState[canvasId];
+  document.querySelectorAll('#'+canvasId+' .dropped-shape').forEach(e => e.classList.remove('selected'));
+  state.selected = [sid];
+  document.getElementById(sid)?.classList.add('selected');
+  const s = state.shapes.find(s=>s.id===sid);
+  const actNum = canvasId.replace('canvas','');
+  if (s) document.getElementById('labelInput'+actNum).value = s.label||'';
+  showEditor(canvasId);
+}
+
+function showEditor(canvasId) {
+  const actNum = canvasId.replace('canvas','');
+  document.getElementById('editor'+actNum).classList.add('visible');
+}
+
+function updateLabel(canvasId) {
+  const actNum = canvasId.replace('canvas','');
+  const state = canvasState[canvasId];
+  const val = document.getElementById('labelInput'+actNum).value;
+  if (!state.selected.length) return;
+  const sid = state.selected[0];
+  const s = state.shapes.find(s=>s.id===sid);
+  if (s) s.label = val;
+  const el = document.getElementById(sid);
+  if (el) {
+    const lbl = el.querySelector('.shape-label');
+    if (lbl) lbl.textContent = val;
+  }
+}
+
+function deleteSelected(canvasId) {
+  const state = canvasState[canvasId];
+  state.selected.forEach(sid => {
+    document.getElementById(sid)?.remove();
+    state.shapes = state.shapes.filter(s => s.id !== sid);
+    state.arrows = state.arrows.filter(a => a.from !== sid && a.to !== sid);
+  });
+  state.selected = [];
+  redrawArrows(canvasId);
+}
+
+function clearCanvas(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  canvas.querySelectorAll('.dropped-shape').forEach(e=>e.remove());
+  canvas.querySelectorAll('.arrow-svg').forEach(e=>e.remove());
+  canvasState[canvasId].shapes = [];
+  canvasState[canvasId].arrows = [];
+  canvasState[canvasId].selected = [];
+  const actNum = canvasId.replace('canvas','');
+  const hint = document.getElementById('hint'+actNum);
+  if (hint) hint.style.display = '';
+}
+
+function addArrow(canvasId) {
+  const state = canvasState[canvasId];
+  if (state.selected.length < 2) {
+    alert('Select exactly two shapes first (click the first, then Ctrl+click or select the second via the canvas), then click Add Arrow.\n\nTip: Click a shape to select it — it will highlight with a blue border. Then click a second shape. The second click selects only that shape, so use the Add Arrow button right after selecting the FROM shape, then again for TO — or select both then add arrow.');
+    return;
+  }
+  const from = state.selected[0]; const to = state.selected[state.selected.length-1];
+  state.arrows.push({ from, to, label: '' });
+  redrawArrows(canvasId);
+}
+
+function redrawArrows(canvasId) {
+  const state = canvasState[canvasId];
+  const canvas = document.getElementById(canvasId);
+  canvas.querySelectorAll('.arrow-svg').forEach(e=>e.remove());
+  const cw = canvas.offsetWidth; const ch = canvas.offsetHeight;
+  const svgEl = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svgEl.setAttribute('class','arrow-svg');
+  svgEl.setAttribute('style','position:absolute;top:0;left:0;pointer-events:none;overflow:visible');
+  svgEl.setAttribute('width',cw); svgEl.setAttribute('height',ch);
+  svgEl.innerHTML = `<defs><marker id="marr_${canvasId}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#1a1917" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>`;
+  state.arrows.forEach(arrow => {
+    const from = state.shapes.find(s=>s.id===arrow.from);
+    const to   = state.shapes.find(s=>s.id===arrow.to);
+    if (!from||!to) return;
+    const x1 = from.x + shapeW[from.type]/2;
+    const y1 = from.y + shapeH[from.type];
+    const x2 = to.x + shapeW[to.type]/2;
+    const y2 = to.y;
+    const line = document.createElementNS('http://www.w3.org/2000/svg','path');
+    line.setAttribute('d',`M${x1} ${y1} C${x1} ${(y1+y2)/2} ${x2} ${(y1+y2)/2} ${x2} ${y2}`);
+    line.setAttribute('fill','none');
+    line.setAttribute('stroke','#1a1917');
+    line.setAttribute('stroke-width','1.5');
+    line.setAttribute('marker-end',`url(#marr_${canvasId})`);
+    svgEl.appendChild(line);
+  });
+  canvas.insertBefore(svgEl, canvas.firstChild);
+}
+
+/* Arrow: allow 2-step selection */
+document.querySelectorAll('.drop-canvas').forEach(canvas => {
+  canvas.addEventListener('mousedown', ev => {
+    const shape = ev.target.closest('.dropped-shape');
+    if (!shape) {
+      const cid = canvas.id;
+      canvasState[cid].selected = [];
+      canvas.querySelectorAll('.dropped-shape').forEach(e=>e.classList.remove('selected'));
+    }
+  });
+});
+
+/* =========================================================
+   SOLUTION TOGGLE
+   ========================================================= */
+function toggleSolution(id) {
+  const panel = document.getElementById(id);
+  const btn   = document.getElementById(id+'-btn');
+  const open  = panel.classList.toggle('visible');
+  btn.classList.toggle('open', open);
+  btn.querySelector('span') && (btn.querySelector('span').textContent = open ? 'Hide solution' : 'Show model solution');
+  if (!btn.querySelector('span')) btn.childNodes[1] && (btn.childNodes[1].textContent = open ? ' Hide solution' : ' Show model solution');
+  // update text node
+  for (const n of btn.childNodes) {
+    if (n.nodeType === 3) { n.textContent = open ? ' Hide solution' : ' Show model solution'; break; }
+  }
+}
+
+/* =========================================================
+   MCQ CHECKER (Activity 3)
+   ========================================================= */
+const correct = { q1:'b', q2:'b', q3:'b', q4:'c' };
+const explanations = {
+  q1: 'Correct! Conditions (like while/if) are represented by diamond shapes in flowcharts.',
+  q2: 'Correct! Two process boxes: one for the total update and one for counter increment.',
+  q3: 'Correct! YES means the condition is still true, so we enter/continue the loop body.',
+  q4: 'Correct! Once the loop ends (NO), we output the final total before ending.',
+};
+const wrong = {
+  q1: 'Not quite — rectangles are for processes. The diamond (decision) shape represents conditions.',
+  q2: 'Not quite — there are exactly 2 assignment statements inside the loop, each needs a process box.',
+  q3: 'Not quite — YES means the loop condition holds, so we proceed into the loop body.',
+  q4: 'Not quite — the print statement after the loop is represented as an output parallelogram.',
+};
+
+function checkAnswers() {
+  let score = 0;
+  ['q1','q2','q3','q4'].forEach(qid => {
+    const sel = document.querySelector(`input[name="${qid}"]:checked`);
+    document.querySelectorAll(`input[name="${qid}"]`).forEach(r => {
+      r.parentElement.classList.remove('correct','incorrect');
+    });
+    if (!sel) return;
+    const label = sel.parentElement;
+    if (sel.value === correct[qid]) { label.classList.add('correct'); score++; }
+    else { label.classList.add('incorrect'); document.querySelector(`input[name="${qid}"][value="${correct[qid]}"]`)?.parentElement.classList.add('correct'); }
+  });
+  const sb = document.getElementById('scorebar');
+  sb.classList.add('visible');
+  document.getElementById('score-text').textContent = `You scored ${score} / 4${score===4?' — Excellent! Now draw the flowchart.':score>=2?' — Good effort! Review the incorrect answers above.':' — Review the questions and try again.'}`;
+  document.getElementById('score-fill').style.width = (score/4*100)+'%';
+  document.getElementById('score-fill').style.background = score===4?'var(--green)':score>=2?'#d97706':'var(--red)';
+}
+
+function resetAnswers() {
+  ['q1','q2','q3','q4'].forEach(qid => {
+    document.querySelectorAll(`input[name="${qid}"]`).forEach(r => {
+      r.checked = false;
+      r.parentElement.classList.remove('correct','incorrect');
+    });
+  });
+  document.getElementById('scorebar').classList.remove('visible');
+}
+</script>
+
+</body>
+</html>
