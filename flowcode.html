@@ -731,6 +731,14 @@ body {
       <label>Variable name</label>
       <input type="text" id="modalVarName" placeholder="e.g. name, age, x">
     </div>
+    <div class="modal-field" id="modalVarTypeField" style="display:none;">
+      <label>Data type</label>
+      <select id="modalVarType">
+        <option value="str">Text (string)</option>
+        <option value="int">Whole number (int)</option>
+        <option value="float">Decimal number (float)</option>
+      </select>
+    </div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveModal()">Save</button>
@@ -946,7 +954,8 @@ function addNode(type, x, y, text) {
     x: x - (type === 'decision' ? DIAMOND_W/2 : NODE_W/2),
     y: y - (type === 'decision' ? DIAMOND_H/2 : NODE_H/2),
     condType: type === 'decision' ? 'if' : null,
-    varName: type === 'input' ? 'name' : null
+    varName: type === 'input' ? 'name' : null,
+    varType: type === 'input' ? 'str' : null
   };
 
   nodes.push(node);
@@ -1108,7 +1117,14 @@ function generateCode() {
 
       case 'input':
         const varName = node.varName || 'value';
-        lines.push(pad + `${varName} = input("${node.text}")`);
+        const varType = node.varType || 'str';
+        if (varType === 'int') {
+          lines.push(pad + `${varName} = int(input("${node.text}"))`);
+        } else if (varType === 'float') {
+          lines.push(pad + `${varName} = float(input("${node.text}"))`);
+        } else {
+          lines.push(pad + `${varName} = input("${node.text}")`);
+        }
         break;
 
       case 'output':
@@ -1149,12 +1165,13 @@ function pythonToFlowchart(code) {
     let condType = null;
     let varName = null;
 
-    // Detect input
-    const inputMatch = trimmed.match(/^(\w+)\s*=\s*(?:int\(|float\(|str\()?\s*input\(["'](.*)["']\)\)?/);
+    // Detect input (with optional int/float wrapper)
+    const inputMatch = trimmed.match(/^(\w+)\s*=\s*(int|float|str)?\(?\s*input\(["'](.*)["']\)\)?/);
     if (inputMatch) {
       type = 'input';
       varName = inputMatch[1];
-      text = inputMatch[2] || `Enter ${inputMatch[1]}`;
+      text = inputMatch[3] || `Enter ${inputMatch[1]}`;
+      var varType = inputMatch[2] || 'str';
     }
     // Detect print/output
     else if (trimmed.startsWith('print(')) {
@@ -1198,7 +1215,7 @@ function pythonToFlowchart(code) {
     nodes.push({
       id: nextId++, type, text,
       x: CENTER_X - w/2, y,
-      condType, varName
+      condType, varName, varType: varType || null
     });
 
     y += h + GAP_Y;
@@ -1238,13 +1255,17 @@ function openModal(node) {
     condField.style.display = 'none';
   }
 
-  // Show/hide variable name
+  // Show/hide variable name and data type
   const varField = document.getElementById('modalVarField');
+  const varTypeField = document.getElementById('modalVarTypeField');
   if (node.type === 'input') {
     varField.style.display = '';
+    varTypeField.style.display = '';
     document.getElementById('modalVarName').value = node.varName || '';
+    document.getElementById('modalVarType').value = node.varType || 'str';
   } else {
     varField.style.display = 'none';
+    varTypeField.style.display = 'none';
   }
 
   setTimeout(() => document.getElementById('modalInput').focus(), 100);
@@ -1259,6 +1280,7 @@ function saveModal() {
   }
   if (editingNode.type === 'input') {
     editingNode.varName = document.getElementById('modalVarName').value || 'value';
+    editingNode.varType = document.getElementById('modalVarType').value || 'str';
   }
 
   editingNode = null;
