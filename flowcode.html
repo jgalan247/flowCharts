@@ -767,13 +767,13 @@ function setupDragAndDrop() {
   // Node dragging on SVG
   let isDragging = false;
   let hasMoved = false;
-  let lastMousedownNodeId = null;
+  let lastClickNodeId = null;
+  let lastClickTime = 0;
 
   svg.addEventListener('mousedown', e => {
     const nodeEl = e.target.closest('.flow-node');
     if (!nodeEl) {
       selectedNode = null;
-      lastMousedownNodeId = null;
       renderFlowchart();
       return;
     }
@@ -781,7 +781,6 @@ function setupDragAndDrop() {
     const node = nodes.find(n => n.id === parseInt(nodeEl.dataset.id));
     if (!node) return;
 
-    lastMousedownNodeId = node.id;
     selectedNode = node;
     draggingNode = node;
     isDragging = true;
@@ -823,19 +822,21 @@ function setupDragAndDrop() {
         draggingNode = null;
         renderFlowchart();
         generateCode();
+      } else {
+        // Click without drag — detect double-click manually
+        const now = Date.now();
+        if (lastClickNodeId === selectedNode.id && now - lastClickTime < 400) {
+          openModal(selectedNode);
+          lastClickNodeId = null;
+          lastClickTime = 0;
+        } else {
+          lastClickNodeId = selectedNode.id;
+          lastClickTime = now;
+        }
       }
-      // If not moved, skip re-render so dblclick can still find the element
     }
     isDragging = false;
     draggingNode = null;
-  });
-
-  // Double-click to edit — use stored ID since renderFlowchart() destroys DOM elements
-  svg.addEventListener('dblclick', e => {
-    if (lastMousedownNodeId != null) {
-      const node = nodes.find(n => n.id === lastMousedownNodeId);
-      if (node) openModal(node);
-    }
   });
 }
 
