@@ -13,6 +13,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/edit/matchbrackets.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/edit/closebrackets.min.js"></script>
 
+<!-- Skulpt — Python in the browser -->
+<script src="https://skulpt.org/js/skulpt.min.js"></script>
+<script src="https://skulpt.org/js/skulpt-stdlib.js"></script>
+
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -375,7 +379,7 @@ body {
 .code-output {
   border-top: 1px solid var(--border);
   padding: 10px 14px;
-  max-height: 120px;
+  max-height: 180px;
   overflow-y: auto;
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
@@ -390,6 +394,84 @@ body {
   color: #6B7280;
   margin-bottom: 4px;
 }
+
+.code-output .output-line { color: #34D399; }
+.code-output .output-error { color: #F87171; }
+.code-output .output-input { color: #60A5FA; }
+
+.code-run-bar {
+  padding: 8px 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-run {
+  padding: 6px 16px;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-run:hover { background: #047857; }
+
+.input-prompt-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 6000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-prompt-box {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 24px;
+  min-width: 320px;
+  box-shadow: var(--shadow-md);
+}
+
+.input-prompt-box label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.input-prompt-box input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.input-prompt-box button {
+  padding: 8px 20px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.input-prompt-box button:hover { background: var(--accent-hover); }
 
 /* ── EDIT MODAL ── */
 .modal-overlay {
@@ -618,6 +700,10 @@ body {
     </div>
     <div class="code-editor-wrap">
       <textarea id="codeArea"></textarea>
+    </div>
+    <div class="code-run-bar">
+      <button class="btn-run" onclick="runCode()">▶ Run</button>
+      <span style="font-size:11px;color:var(--text-light)">Runs Python in your browser</span>
     </div>
     <div class="code-output" id="codeOutput" style="display:none;">
       <div class="output-title">Output</div>
@@ -1233,6 +1319,78 @@ function clearAll() {
   suppressCodeSync = true;
   codeEditor.setValue('');
   suppressCodeSync = false;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// RUN PYTHON (Skulpt)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function runCode() {
+  const outputEl = document.getElementById('codeOutput');
+  const contentEl = document.getElementById('outputContent');
+  outputEl.style.display = '';
+  contentEl.innerHTML = '';
+
+  const code = codeEditor.getValue();
+  if (!code.trim()) {
+    contentEl.innerHTML = '<div class="output-error">No code to run.</div>';
+    return;
+  }
+
+  function addOutput(text, cls) {
+    const div = document.createElement('div');
+    div.className = cls || 'output-line';
+    div.textContent = text;
+    contentEl.appendChild(div);
+    outputEl.scrollTop = outputEl.scrollHeight;
+  }
+
+  // Skulpt output callback
+  function outf(text) {
+    addOutput(text, 'output-line');
+  }
+
+  // Skulpt input callback — returns a promise resolved by user input
+  function inf(promptText) {
+    return new Promise(resolve => {
+      const overlay = document.createElement('div');
+      overlay.className = 'input-prompt-overlay';
+      overlay.innerHTML = `
+        <div class="input-prompt-box">
+          <label>${promptText || 'Enter input:'}</label>
+          <input type="text" id="skulptInput" autofocus>
+          <button onclick="this.parentElement.dataset.submitted='1'">Submit</button>
+        </div>`;
+      document.body.appendChild(overlay);
+
+      const inp = overlay.querySelector('#skulptInput');
+      inp.focus();
+
+      function submit() {
+        const val = inp.value;
+        document.body.removeChild(overlay);
+        addOutput((promptText || '') + val, 'output-input');
+        resolve(val);
+      }
+
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+      overlay.querySelector('button').addEventListener('click', submit);
+    });
+  }
+
+  Sk.configure({
+    output: outf,
+    inputfun: inf,
+    inputfunTakesPrompt: true,
+    __future__: Sk.python3
+  });
+
+  Sk.misceval.asyncToPromise(() =>
+    Sk.importMainWithBody('<stdin>', false, code, true)
+  ).then(() => {
+    addOutput('--- Program finished ---', 'output-line');
+  }).catch(err => {
+    addOutput(err.toString(), 'output-error');
+  });
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
