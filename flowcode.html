@@ -766,6 +766,7 @@ function setupDragAndDrop() {
 
   // Node dragging on SVG
   let isDragging = false;
+  let hasMoved = false;
 
   svg.addEventListener('mousedown', e => {
     const nodeEl = e.target.closest('.flow-node');
@@ -781,17 +782,22 @@ function setupDragAndDrop() {
     selectedNode = node;
     draggingNode = node;
     isDragging = true;
+    hasMoved = false;
 
     const rect = svg.getBoundingClientRect();
     dragOffsetX = e.clientX - rect.left - node.x;
     dragOffsetY = e.clientY - rect.top - node.y;
 
-    document.getElementById('deleteZone').classList.add('visible');
     renderFlowchart();
   });
 
   document.addEventListener('mousemove', e => {
     if (!isDragging || !draggingNode) return;
+
+    if (!hasMoved) {
+      hasMoved = true;
+      document.getElementById('deleteZone').classList.add('visible');
+    }
 
     const rect = svg.getBoundingClientRect();
     draggingNode.x = e.clientX - rect.left - dragOffsetX;
