@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowCode — Flowchart ↔ Python</title>
+
+<!-- CodeMirror 6 via CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/edit/closebrackets.min.js"></script>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #F3F4F6;
+  --surface: #FFFFFF;
+  --border: #E5E7EB;
+  --border-strong: #D1D5DB;
+  --text: #1F2937;
+  --text-dim: #6B7280;
+  --text-light: #9CA3AF;
+  --accent: #2563EB;
+  --accent-light: #DBEAFE;
+  --accent-hover: #1D4ED8;
+  --red: #DC2626;
+  --red-light: #FEE2E2;
+  --green: #059669;
+  --green-light: #D1FAE5;
+  --amber: #D97706;
+  --amber-light: #FEF3C7;
+  --purple: #7C3AED;
+  --purple-light: #EDE9FE;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+.header-logo {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-logo .icon {
+  width: 28px; height: 28px;
+  background: var(--accent);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #fff;
+}
+
+.header-sep {
+  width: 1px;
+  height: 24px;
+  background: var(--border);
+}
+
+.header-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+}
+
+.header-tab {
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.header-tab.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn:hover { background: var(--bg); }
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.btn-primary:hover { background: var(--accent-hover); }
+
+.btn-danger {
+  color: var(--red);
+  border-color: rgba(220,38,38,0.2);
+}
+
+.btn-danger:hover { background: var(--red-light); }
+
+/* ── INSTRUCTIONS BANNER ── */
+.instructions {
+  padding: 10px 20px;
+  background: var(--accent-light);
+  border-bottom: 1px solid rgba(37,99,235,0.15);
+  font-size: 13px;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.instructions strong { font-weight: 700; }
+
+.instructions .dismiss {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 6px;
+}
+
+.instructions.hidden { display: none; }
+
+/* ── MAIN LAYOUT ── */
+.main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── SHAPE PALETTE ── */
+.palette {
+  width: 180px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.palette-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.palette-shape {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.palette-shape:hover {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.palette-shape:active { cursor: grabbing; }
+
+.shape-preview {
+  width: 32px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.shape-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.shape-hint {
+  font-size: 10px;
+  color: var(--text-dim);
+  line-height: 1.2;
+}
+
+/* ── FLOWCHART CANVAS ── */
+.canvas-panel {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle, var(--border) 1px, transparent 1px);
+  background-size: 20px 20px;
+  min-width: 0;
+}
+
+.canvas-inner {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.flowchart-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── FLOW NODES ── */
+.flow-node {
+  cursor: pointer;
+  transition: filter 0.1s;
+}
+
+.flow-node:hover { filter: brightness(0.97); }
+
+.flow-node.selected rect,
+.flow-node.selected ellipse,
+.flow-node.selected polygon,
+.flow-node.selected path {
+  stroke: var(--accent) !important;
+  stroke-width: 2.5 !important;
+}
+
+.flow-node text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  fill: var(--text);
+  pointer-events: none;
+}
+
+.flow-arrow {
+  stroke: var(--text-dim);
+  stroke-width: 1.5;
+  fill: none;
+  marker-end: url(#arrowhead);
+}
+
+.flow-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  fill: var(--text-dim);
+}
+
+/* ── CODE PANEL ── */
+.code-panel {
+  width: 420px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.code-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+
+.code-header-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.code-header-title .dot {
+  width: 8px; height: 8px;
+  background: var(--green);
+  border-radius: 50%;
+}
+
+.code-sync-label {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.code-editor-wrap {
+  flex: 1;
+  overflow: hidden;
+}
+
+.CodeMirror {
+  height: 100%;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  border: none;
+}
+
+.CodeMirror-gutters {
+  background: #FAFBFC;
+  border-right: 1px solid var(--border);
+}
+
+.code-output {
+  border-top: 1px solid var(--border);
+  padding: 10px 14px;
+  max-height: 120px;
+  overflow-y: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  background: #1F2937;
+  color: #D1D5DB;
+}
+
+.code-output .output-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6B7280;
+  margin-bottom: 4px;
+}
+
+/* ── EDIT MODAL ── */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 24px;
+  width: 380px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.modal-field {
+  margin-bottom: 14px;
+}
+
+.modal-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: 5px;
+}
+
+.modal-field input,
+.modal-field select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.modal-field input:focus,
+.modal-field select:focus {
+  border-color: var(--accent);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .main { flex-direction: column; }
+  .palette {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-height: 100px;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 8px;
+    gap: 6px;
+  }
+  .palette-title { display: none; }
+  .palette-shape { padding: 6px 10px; }
+  .shape-hint { display: none; }
+  .code-panel { width: 100%; height: 250px; border-left: none; border-top: 1px solid var(--border); }
+}
+
+/* ── DELETE ZONE ── */
+.delete-zone {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 24px;
+  background: var(--red-light);
+  border: 2px dashed var(--red);
+  border-radius: var(--radius);
+  color: var(--red);
+  font-weight: 700;
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 50;
+}
+
+.delete-zone.visible { opacity: 1; pointer-events: auto; }
+
+/* ── FOOTER BRANDING ── */
+.footer-brand {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 10px;
+  color: var(--text-light);
+  z-index: 10;
+}
+
+.footer-brand a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-logo">
+    <div class="icon">⬡</div>
+    FlowCode
+  </div>
+  <div class="header-sep"></div>
+  <div class="header-tabs">
+    <button class="header-tab active" data-mode="flowchart" onclick="setMode('flowchart')">Flowchart → Python</button>
+    <button class="header-tab" data-mode="python" onclick="setMode('python')">Python → Flowchart</button>
+  </div>
+  <div class="header-actions">
+    <button class="btn" onclick="loadExample()">📂 Example</button>
+    <button class="btn btn-danger" onclick="clearAll()">✕ Clear</button>
+    <a class="btn" href="index.html" style="text-decoration:none">📖 Tutorial</a>
+  </div>
+</div>
+
+<!-- ── INSTRUCTIONS ── -->
+<div class="instructions" id="instructions">
+  <strong>How to use:</strong>
+  Drag shapes from the left panel onto the canvas to build your flowchart. Double-click any shape to edit its text. The Python code updates automatically on the right. Switch to "Python → Flowchart" mode to type code and see the flowchart generated.
+  <button class="dismiss" onclick="document.getElementById('instructions').classList.add('hidden')">✕</button>
+</div>
+
+<!-- ── MAIN LAYOUT ── -->
+<div class="main">
+
+  <!-- Palette -->
+  <div class="palette" id="palette">
+    <div class="palette-title">Shapes</div>
+
+    <div class="palette-shape" draggable="true" data-type="start">
+      <svg class="shape-preview" viewBox="0 0 64 40">
+        <rect x="2" y="4" width="60" height="32" rx="16" fill="#D1FAE5" stroke="#059669" stroke-width="2"/>
+      </svg>
+      <div>
+        <div class="shape-label">Start / Stop</div>
+        <div class="shape-hint">Terminator</div>
+      </div>
+    </div>
+
+    <div class="palette-shape" draggable="true" data-type="process">
+      <svg class="shape-preview" viewBox="0 0 64 40">
+        <rect x="2" y="4" width="60" height="32" rx="3" fill="#DBEAFE" stroke="#2563EB" stroke-width="2"/>
+      </svg>
+      <div>
+        <div class="shape-label">Process</div>
+        <div class="shape-hint">x = x + 1</div>
+      </div>
+    </div>
+
+    <div class="palette-shape" draggable="true" data-type="decision">
+      <svg class="shape-preview" viewBox="0 0 64 44">
+        <polygon points="32,2 62,22 32,42 2,22" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+      </svg>
+      <div>
+        <div class="shape-label">Decision</div>
+        <div class="shape-hint">if / while</div>
+      </div>
+    </div>
+
+    <div class="palette-shape" draggable="true" data-type="input">
+      <svg class="shape-preview" viewBox="0 0 64 40">
+        <polygon points="10,4 62,4 54,36 2,36" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2"/>
+      </svg>
+      <div>
+        <div class="shape-label">Input</div>
+        <div class="shape-hint">input()</div>
+      </div>
+    </div>
+
+    <div class="palette-shape" draggable="true" data-type="output">
+      <svg class="shape-preview" viewBox="0 0 64 40">
+        <polygon points="10,4 62,4 54,36 2,36" fill="#FCE7F3" stroke="#DB2777" stroke-width="2"/>
+      </svg>
+      <div>
+        <div class="shape-label">Output</div>
+        <div class="shape-hint">print()</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Canvas -->
+  <div class="canvas-panel" id="canvasPanel">
+    <svg class="flowchart-svg" id="flowchartSVG" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#6B7280"/>
+        </marker>
+      </defs>
+    </svg>
+    <div class="delete-zone" id="deleteZone">🗑️ Drop here to delete</div>
+    <div class="footer-brand">Built with <a href="https://coderra.je" target="_blank">Coderra.je</a></div>
+  </div>
+
+  <!-- Code Panel -->
+  <div class="code-panel">
+    <div class="code-header">
+      <div class="code-header-title"><div class="dot"></div> Python</div>
+      <div class="code-sync-label" id="syncLabel">⟳ Auto-synced</div>
+    </div>
+    <div class="code-editor-wrap">
+      <textarea id="codeArea"></textarea>
+    </div>
+    <div class="code-output" id="codeOutput" style="display:none;">
+      <div class="output-title">Output</div>
+      <div id="outputContent"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── EDIT MODAL ── -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title" id="modalTitle">Edit Shape</div>
+    <div class="modal-field">
+      <label>Text / Code</label>
+      <input type="text" id="modalInput" placeholder="Enter text..." onkeydown="if(event.key==='Enter')saveModal()">
+    </div>
+    <div class="modal-field" id="modalCondField" style="display:none;">
+      <label>Type</label>
+      <select id="modalCondType">
+        <option value="if">if (decision)</option>
+        <option value="while">while (loop)</option>
+      </select>
+    </div>
+    <div class="modal-field" id="modalVarField" style="display:none;">
+      <label>Variable name</label>
+      <input type="text" id="modalVarName" placeholder="e.g. name, age, x">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STATE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let nodes = [];
+let selectedNode = null;
+let editingNode = null;
+let dragType = null;
+let draggingNode = null;
+let dragOffsetX = 0, dragOffsetY = 0;
+let currentMode = 'flowchart';
+let codeEditor = null;
+let suppressCodeSync = false;
+let nextId = 1;
+
+const NODE_W = 160;
+const NODE_H = 50;
+const DIAMOND_W = 180;
+const DIAMOND_H = 80;
+const GAP_Y = 70;
+const CENTER_X = 400;
+const START_Y = 40;
+
+const SHAPE_COLORS = {
+  start:    { fill: '#D1FAE5', stroke: '#059669' },
+  stop:     { fill: '#D1FAE5', stroke: '#059669' },
+  process:  { fill: '#DBEAFE', stroke: '#2563EB' },
+  decision: { fill: '#FEF3C7', stroke: '#D97706' },
+  input:    { fill: '#EDE9FE', stroke: '#7C3AED' },
+  output:   { fill: '#FCE7F3', stroke: '#DB2777' }
+};
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// INIT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+document.addEventListener('DOMContentLoaded', () => {
+  codeEditor = CodeMirror.fromTextArea(document.getElementById('codeArea'), {
+    mode: 'python',
+    theme: 'default',
+    lineNumbers: true,
+    matchBrackets: true,
+    autoCloseBrackets: true,
+    tabSize: 4,
+    indentUnit: 4,
+    indentWithTabs: false,
+    lineWrapping: true
+  });
+
+  codeEditor.on('change', () => {
+    if (currentMode === 'python' && !suppressCodeSync) {
+      pythonToFlowchart(codeEditor.getValue());
+    }
+  });
+
+  setupDragAndDrop();
+  loadExample();
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// MODE SWITCHING
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.header-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.mode === mode);
+  });
+
+  const palette = document.getElementById('palette');
+  const syncLabel = document.getElementById('syncLabel');
+
+  if (mode === 'flowchart') {
+    palette.style.display = '';
+    syncLabel.textContent = '⟳ Auto-synced from flowchart';
+    codeEditor.setOption('readOnly', true);
+    codeEditor.getWrapperElement().style.opacity = '0.8';
+  } else {
+    palette.style.display = 'none';
+    syncLabel.textContent = '⟳ Auto-synced from Python';
+    codeEditor.setOption('readOnly', false);
+    codeEditor.getWrapperElement().style.opacity = '1';
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// DRAG & DROP FROM PALETTE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function setupDragAndDrop() {
+  const canvas = document.getElementById('canvasPanel');
+  const svg = document.getElementById('flowchartSVG');
+
+  // Palette drag start
+  document.querySelectorAll('.palette-shape').forEach(el => {
+    el.addEventListener('dragstart', e => {
+      dragType = el.dataset.type;
+      e.dataTransfer.effectAllowed = 'copy';
+    });
+  });
+
+  // Canvas drop
+  canvas.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; });
+  canvas.addEventListener('drop', e => {
+    e.preventDefault();
+    if (!dragType) return;
+
+    const rect = svg.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    addNode(dragType, x, y);
+    dragType = null;
+  });
+
+  // Node dragging on SVG
+  let isDragging = false;
+
+  svg.addEventListener('mousedown', e => {
+    const nodeEl = e.target.closest('.flow-node');
+    if (!nodeEl) {
+      selectedNode = null;
+      renderFlowchart();
+      return;
+    }
+
+    const node = nodes.find(n => n.id === parseInt(nodeEl.dataset.id));
+    if (!node) return;
+
+    selectedNode = node;
+    draggingNode = node;
+    isDragging = true;
+
+    const rect = svg.getBoundingClientRect();
+    dragOffsetX = e.clientX - rect.left - node.x;
+    dragOffsetY = e.clientY - rect.top - node.y;
+
+    document.getElementById('deleteZone').classList.add('visible');
+    renderFlowchart();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!isDragging || !draggingNode) return;
+
+    const rect = svg.getBoundingClientRect();
+    draggingNode.x = e.clientX - rect.left - dragOffsetX;
+    draggingNode.y = e.clientY - rect.top - dragOffsetY;
+    renderFlowchart();
+  });
+
+  document.addEventListener('mouseup', e => {
+    if (isDragging && draggingNode) {
+      // Check delete zone
+      const dz = document.getElementById('deleteZone');
+      const dzRect = dz.getBoundingClientRect();
+      if (e.clientX >= dzRect.left && e.clientX <= dzRect.right &&
+          e.clientY >= dzRect.top && e.clientY <= dzRect.bottom) {
+        nodes = nodes.filter(n => n.id !== draggingNode.id);
+        selectedNode = null;
+      }
+      dz.classList.remove('visible');
+    }
+    isDragging = false;
+    draggingNode = null;
+    renderFlowchart();
+    generateCode();
+  });
+
+  // Double-click to edit
+  svg.addEventListener('dblclick', e => {
+    const nodeEl = e.target.closest('.flow-node');
+    if (!nodeEl) return;
+    const node = nodes.find(n => n.id === parseInt(nodeEl.dataset.id));
+    if (node) openModal(node);
+  });
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// NODE MANAGEMENT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function addNode(type, x, y, text) {
+  const defaults = {
+    start: 'Start',
+    stop: 'Stop',
+    process: 'x = x + 1',
+    decision: 'x > 10',
+    input: 'name',
+    output: 'result'
+  };
+
+  const node = {
+    id: nextId++,
+    type,
+    text: text || defaults[type] || type,
+    x: x - (type === 'decision' ? DIAMOND_W/2 : NODE_W/2),
+    y: y - (type === 'decision' ? DIAMOND_H/2 : NODE_H/2),
+    condType: type === 'decision' ? 'if' : null,
+    varName: type === 'input' ? 'name' : null
+  };
+
+  nodes.push(node);
+  renderFlowchart();
+  generateCode();
+  return node;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// RENDER FLOWCHART
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function renderFlowchart() {
+  const svg = document.getElementById('flowchartSVG');
+
+  // Keep defs
+  const defs = svg.querySelector('defs').outerHTML;
+  svg.innerHTML = defs;
+
+  // Sort nodes by Y position for arrows
+  const sorted = [...nodes].sort((a, b) => a.y - b.y);
+
+  // Draw arrows between consecutive nodes
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const from = sorted[i];
+    const to = sorted[i + 1];
+    const fromCX = from.x + (from.type === 'decision' ? DIAMOND_W/2 : NODE_W/2);
+    const fromBY = from.y + (from.type === 'decision' ? DIAMOND_H : NODE_H);
+    const toCX = to.x + (to.type === 'decision' ? DIAMOND_W/2 : NODE_W/2);
+    const toTY = to.y;
+
+    // Bezier curve for nice arrows
+    const midY = (fromBY + toTY) / 2;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', `M ${fromCX} ${fromBY} C ${fromCX} ${midY}, ${toCX} ${midY}, ${toCX} ${toTY}`);
+    path.setAttribute('class', 'flow-arrow');
+    svg.appendChild(path);
+
+    // Yes/No labels for decisions
+    if (from.type === 'decision') {
+      const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      label.setAttribute('x', fromCX + 8);
+      label.setAttribute('y', fromBY + 14);
+      label.setAttribute('class', 'flow-label');
+      label.textContent = 'Yes';
+      svg.appendChild(label);
+    }
+  }
+
+  // Draw nodes
+  sorted.forEach(node => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('class', 'flow-node' + (selectedNode && selectedNode.id === node.id ? ' selected' : ''));
+    g.setAttribute('data-id', node.id);
+
+    const colors = SHAPE_COLORS[node.type] || SHAPE_COLORS.process;
+
+    if (node.type === 'start' || node.type === 'stop') {
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', node.x);
+      rect.setAttribute('y', node.y);
+      rect.setAttribute('width', NODE_W);
+      rect.setAttribute('height', NODE_H);
+      rect.setAttribute('rx', NODE_H / 2);
+      rect.setAttribute('fill', colors.fill);
+      rect.setAttribute('stroke', colors.stroke);
+      rect.setAttribute('stroke-width', '2');
+      g.appendChild(rect);
+    }
+    else if (node.type === 'decision') {
+      const cx = node.x + DIAMOND_W / 2;
+      const cy = node.y + DIAMOND_H / 2;
+      const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      poly.setAttribute('points',
+        `${cx},${node.y} ${node.x + DIAMOND_W},${cy} ${cx},${node.y + DIAMOND_H} ${node.x},${cy}`
+      );
+      poly.setAttribute('fill', colors.fill);
+      poly.setAttribute('stroke', colors.stroke);
+      poly.setAttribute('stroke-width', '2');
+      g.appendChild(poly);
+    }
+    else if (node.type === 'input' || node.type === 'output') {
+      // Parallelogram
+      const skew = 12;
+      const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      poly.setAttribute('points',
+        `${node.x + skew},${node.y} ${node.x + NODE_W},${node.y} ${node.x + NODE_W - skew},${node.y + NODE_H} ${node.x},${node.y + NODE_H}`
+      );
+      poly.setAttribute('fill', colors.fill);
+      poly.setAttribute('stroke', colors.stroke);
+      poly.setAttribute('stroke-width', '2');
+      g.appendChild(poly);
+    }
+    else {
+      // Process rectangle
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', node.x);
+      rect.setAttribute('y', node.y);
+      rect.setAttribute('width', NODE_W);
+      rect.setAttribute('height', NODE_H);
+      rect.setAttribute('rx', '4');
+      rect.setAttribute('fill', colors.fill);
+      rect.setAttribute('stroke', colors.stroke);
+      rect.setAttribute('stroke-width', '2');
+      g.appendChild(rect);
+    }
+
+    // Text
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    const w = node.type === 'decision' ? DIAMOND_W : NODE_W;
+    const h = node.type === 'decision' ? DIAMOND_H : NODE_H;
+    text.setAttribute('x', node.x + w / 2);
+    text.setAttribute('y', node.y + h / 2 + 5);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('font-size', '13');
+
+    // Truncate text if too long
+    const displayText = node.text.length > 20 ? node.text.slice(0, 18) + '…' : node.text;
+    text.textContent = displayText;
+    g.appendChild(text);
+
+    svg.appendChild(g);
+  });
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// FLOWCHART → PYTHON CODE GENERATION
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function generateCode() {
+  if (currentMode !== 'flowchart') return;
+
+  const sorted = [...nodes].sort((a, b) => a.y - b.y);
+  let lines = [];
+  let indent = 0;
+  let inBlock = false;
+
+  sorted.forEach((node, i) => {
+    const pad = '    '.repeat(indent);
+
+    switch (node.type) {
+      case 'start':
+        lines.push('# Program Start');
+        break;
+
+      case 'stop':
+        if (indent > 0) indent = 0;
+        lines.push('# Program End');
+        break;
+
+      case 'process':
+        lines.push(pad + node.text);
+        break;
+
+      case 'decision':
+        const keyword = node.condType === 'while' ? 'while' : 'if';
+        lines.push(pad + `${keyword} ${node.text}:`);
+        indent++;
+        inBlock = true;
+        break;
+
+      case 'input':
+        const varName = node.varName || 'value';
+        lines.push(pad + `${varName} = input("${node.text}")`);
+        break;
+
+      case 'output':
+        lines.push(pad + `print(${node.text})`);
+        break;
+    }
+  });
+
+  suppressCodeSync = true;
+  codeEditor.setValue(lines.join('\n'));
+  suppressCodeSync = false;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PYTHON → FLOWCHART PARSER
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function pythonToFlowchart(code) {
+  const lines = code.split('\n').filter(l => l.trim() && !l.trim().startsWith('#'));
+  nodes = [];
+  nextId = 1;
+
+  let y = START_Y;
+
+  // Add start node
+  const startNode = {
+    id: nextId++, type: 'start', text: 'Start',
+    x: CENTER_X - NODE_W/2, y, condType: null, varName: null
+  };
+  nodes.push(startNode);
+  y += NODE_H + GAP_Y;
+
+  lines.forEach(line => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+
+    let type = 'process';
+    let text = trimmed;
+    let condType = null;
+    let varName = null;
+
+    // Detect input
+    const inputMatch = trimmed.match(/^(\w+)\s*=\s*(?:int\(|float\(|str\()?\s*input\(["'](.*)["']\)\)?/);
+    if (inputMatch) {
+      type = 'input';
+      varName = inputMatch[1];
+      text = inputMatch[2] || `Enter ${inputMatch[1]}`;
+    }
+    // Detect print/output
+    else if (trimmed.startsWith('print(')) {
+      type = 'output';
+      const inner = trimmed.match(/^print\((.+)\)$/);
+      text = inner ? inner[1] : trimmed;
+    }
+    // Detect if
+    else if (trimmed.startsWith('if ') && trimmed.endsWith(':')) {
+      type = 'decision';
+      condType = 'if';
+      text = trimmed.slice(3, -1).trim();
+    }
+    // Detect while
+    else if (trimmed.startsWith('while ') && trimmed.endsWith(':')) {
+      type = 'decision';
+      condType = 'while';
+      text = trimmed.slice(6, -1).trim();
+    }
+    // Detect elif/else
+    else if (trimmed.startsWith('elif ') || trimmed === 'else:') {
+      type = 'decision';
+      condType = 'if';
+      text = trimmed.endsWith(':') ? trimmed.slice(0, -1) : trimmed;
+    }
+    // Detect for loop
+    else if (trimmed.startsWith('for ') && trimmed.endsWith(':')) {
+      type = 'decision';
+      condType = 'while';
+      text = trimmed.slice(4, -1).trim();
+    }
+    // Regular process
+    else {
+      // Remove trailing colon if any (e.g. from def)
+      text = trimmed.endsWith(':') ? trimmed.slice(0, -1) : trimmed;
+    }
+
+    const w = type === 'decision' ? DIAMOND_W : NODE_W;
+    const h = type === 'decision' ? DIAMOND_H : NODE_H;
+
+    nodes.push({
+      id: nextId++, type, text,
+      x: CENTER_X - w/2, y,
+      condType, varName
+    });
+
+    y += h + GAP_Y;
+  });
+
+  // Add stop node
+  nodes.push({
+    id: nextId++, type: 'stop', text: 'Stop',
+    x: CENTER_X - NODE_W/2, y,
+    condType: null, varName: null
+  });
+
+  renderFlowchart();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// MODAL (Edit Node)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function openModal(node) {
+  editingNode = node;
+  document.getElementById('modalOverlay').classList.add('active');
+  document.getElementById('modalInput').value = node.text;
+
+  const titles = {
+    start: 'Edit Terminator', stop: 'Edit Terminator',
+    process: 'Edit Process', decision: 'Edit Decision',
+    input: 'Edit Input', output: 'Edit Output'
+  };
+  document.getElementById('modalTitle').textContent = titles[node.type] || 'Edit Shape';
+
+  // Show/hide condition type
+  const condField = document.getElementById('modalCondField');
+  if (node.type === 'decision') {
+    condField.style.display = '';
+    document.getElementById('modalCondType').value = node.condType || 'if';
+  } else {
+    condField.style.display = 'none';
+  }
+
+  // Show/hide variable name
+  const varField = document.getElementById('modalVarField');
+  if (node.type === 'input') {
+    varField.style.display = '';
+    document.getElementById('modalVarName').value = node.varName || '';
+  } else {
+    varField.style.display = 'none';
+  }
+
+  setTimeout(() => document.getElementById('modalInput').focus(), 100);
+}
+
+function saveModal() {
+  if (!editingNode) return;
+  editingNode.text = document.getElementById('modalInput').value || editingNode.text;
+
+  if (editingNode.type === 'decision') {
+    editingNode.condType = document.getElementById('modalCondType').value;
+  }
+  if (editingNode.type === 'input') {
+    editingNode.varName = document.getElementById('modalVarName').value || 'value';
+  }
+
+  editingNode = null;
+  document.getElementById('modalOverlay').classList.remove('active');
+  renderFlowchart();
+  generateCode();
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modalOverlay')) return;
+  editingNode = null;
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// EXAMPLES & CLEAR
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function loadExample() {
+  nodes = [];
+  nextId = 1;
+
+  let y = START_Y;
+  const cx = CENTER_X;
+
+  const shapes = [
+    { type: 'start', text: 'Start' },
+    { type: 'input', text: 'Enter your name', varName: 'name' },
+    { type: 'input', text: 'Enter your age', varName: 'age' },
+    { type: 'decision', text: 'age >= 18', condType: 'if' },
+    { type: 'output', text: '"Welcome, " + name' },
+    { type: 'stop', text: 'Stop' }
+  ];
+
+  shapes.forEach(s => {
+    const w = s.type === 'decision' ? DIAMOND_W : NODE_W;
+    const h = s.type === 'decision' ? DIAMOND_H : NODE_H;
+    nodes.push({
+      id: nextId++,
+      type: s.type,
+      text: s.text,
+      x: cx - w/2,
+      y,
+      condType: s.condType || null,
+      varName: s.varName || null
+    });
+    y += h + GAP_Y;
+  });
+
+  renderFlowchart();
+  generateCode();
+}
+
+function clearAll() {
+  nodes = [];
+  nextId = 1;
+  selectedNode = null;
+  renderFlowchart();
+  suppressCodeSync = true;
+  codeEditor.setValue('');
+  suppressCodeSync = false;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// INIT MODE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+setMode('flowchart');
+</script>
+</body>
+</html>

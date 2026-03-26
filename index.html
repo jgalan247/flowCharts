@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowCode Tutorial — Step-by-Step</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F3F4F6;--surface:#FFF;--border:#E5E7EB;--text:#1F2937;--text-dim:#6B7280;--text-light:#9CA3AF;--accent:#2563EB;--accent-light:#DBEAFE;--accent-hover:#1D4ED8;--red:#DC2626;--red-light:#FEE2E2;--green:#059669;--green-light:#D1FAE5;--amber:#D97706;--amber-light:#FEF3C7;--purple:#7C3AED;--purple-light:#EDE9FE;--pink:#DB2777;--pink-light:#FCE7F3;--radius:12px;--radius-sm:6px;--shadow:0 1px 3px rgba(0,0,0,.08)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+.header{display:flex;align-items:center;gap:12px;padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.header-logo{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;color:var(--accent);display:flex;align-items:center;gap:8px}
+.header-logo .icon{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.header-badge{font-size:12px;font-weight:600;background:var(--amber-light);color:var(--amber);padding:3px 10px;border-radius:20px}
+.header-link{margin-left:auto;font-size:13px;color:var(--accent);text-decoration:none;font-weight:600}
+.header-link:hover{text-decoration:underline}
+.lesson-picker{padding:20px 24px;background:var(--surface);border-bottom:1px solid var(--border)}
+.picker-title{font-size:18px;font-weight:700;margin-bottom:12px}
+.lesson-cards{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px}
+.lesson-card{min-width:220px;padding:16px;border:2px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all .2s;flex-shrink:0;background:var(--surface)}
+.lesson-card:hover{border-color:var(--accent);background:var(--accent-light)}
+.lesson-card.active{border-color:var(--accent);background:var(--accent-light)}
+.lesson-card .lc-num{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);margin-bottom:4px}
+.lesson-card .lc-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.lesson-card .lc-desc{font-size:12px;color:var(--text-dim);line-height:1.4}
+.lesson-card .lc-dir{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:8px;padding:2px 8px;border-radius:10px;display:inline-block}
+.lc-dir.fc{background:var(--green-light);color:var(--green)}
+.lc-dir.py{background:var(--purple-light);color:var(--purple)}
+.workspace{flex:1;display:flex;overflow:hidden}
+.explain-panel{width:340px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.explain-header{padding:16px 20px;border-bottom:1px solid var(--border)}
+.explain-lesson-title{font-size:15px;font-weight:700;margin-bottom:2px}
+.explain-step-counter{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim)}
+.explain-body{flex:1;overflow-y:auto;padding:20px}
+.explain-text{font-size:14px;line-height:1.7;margin-bottom:16px}
+.explain-text strong{color:var(--accent)}
+.explain-text code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg);padding:2px 6px;border-radius:3px;color:var(--purple)}
+.explain-shape-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;margin-bottom:12px}
+.badge-start{background:var(--green-light);color:#065F46}
+.badge-process{background:var(--accent-light);color:#1E40AF}
+.badge-decision{background:var(--amber-light);color:#92400E}
+.badge-input{background:var(--purple-light);color:#5B21B6}
+.badge-output{background:var(--pink-light);color:#9D174D}
+.explain-code-preview{background:#1F2937;border-radius:var(--radius-sm);padding:14px;margin:12px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;color:#E5E7EB;overflow-x:auto;white-space:pre}
+.explain-code-preview .new-line{color:#34D399}
+.explain-code-preview .old-line{color:#9CA3AF}
+.explain-highlight{background:var(--amber-light);border-left:3px solid var(--amber);padding:10px 14px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin:12px 0;font-size:13px;line-height:1.5}
+.explain-highlight strong{color:var(--amber)}
+.explain-nav{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:8px}
+.nav-btn{flex:1;padding:12px;border:1px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;border-radius:var(--radius-sm);transition:all .15s;text-align:center}
+.nav-btn:hover{background:var(--bg)}
+.nav-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.nav-btn.primary:hover{background:var(--accent-hover)}
+.nav-btn:disabled{opacity:.4;cursor:not-allowed}
+.progress-bar{height:4px;background:var(--bg);border-radius:2px;overflow:hidden;margin:0 20px}
+.progress-fill{height:100%;background:var(--accent);transition:width .3s;border-radius:2px}
+.canvas-area{flex:1;position:relative;overflow:auto;background:radial-gradient(circle,var(--border) 1px,transparent 1px);background-size:20px 20px}
+.canvas-area svg{width:100%;min-height:100%}
+.canvas-label{position:absolute;top:12px;left:12px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--text-light);background:var(--surface);padding:4px 10px;border-radius:var(--radius-sm);border:1px solid var(--border)}
+.zoom-controls{position:absolute;bottom:12px;left:12px;display:flex;flex-direction:column;gap:4px;z-index:10}
+.zoom-btn{width:32px;height:32px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
+.zoom-btn:hover{background:var(--bg)}
+.zoom-level{text-align:center;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim)}
+.code-area{width:360px;background:#1F2937;display:flex;flex-direction:column;flex-shrink:0}
+.code-area-header{padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:8px}
+.code-area-header .dot{width:8px;height:8px;background:var(--green);border-radius:50%}
+.code-area-header span{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:#9CA3AF}
+.code-display{flex:1;padding:16px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7;color:#E5E7EB;overflow-y:auto;white-space:pre-wrap}
+.code-display .line{display:block;min-height:1.7em}
+.code-display .line.new{color:#34D399;animation:fadeHL .8s ease}
+.code-display .line.old{color:#D1D5DB}
+.code-display .line-num{display:inline-block;width:28px;color:#4B5563;text-align:right;margin-right:12px;user-select:none}
+@keyframes fadeHL{0%{background:rgba(52,211,153,.15)}100%{background:transparent}}
+.flow-node{opacity:0;transform:scale(.85);transition:opacity .4s,transform .4s}
+.flow-node.visible{opacity:1;transform:scale(1)}
+.flow-node.highlight{filter:drop-shadow(0 0 8px rgba(37,99,235,.4))}
+.footer-brand{position:absolute;bottom:6px;right:10px;font-size:9px;color:var(--text-light)}
+.footer-brand a{color:var(--accent);text-decoration:none}
+@media(max-width:1100px){.explain-panel{width:280px}.code-area{width:280px}}
+@media(max-width:800px){.workspace{flex-direction:column}.explain-panel{width:100%;max-height:35vh;border-right:none;border-bottom:1px solid var(--border)}.code-area{width:100%;max-height:25vh}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-logo"><div class="icon">⬡</div> FlowCode</div>
+  <div class="header-badge">Tutorial Mode</div>
+  <a class="header-link" href="flowcode.html">← Back to Builder</a>
+</div>
+<div class="lesson-picker" id="lessonPicker">
+  <div class="picker-title">Choose a walkthrough</div>
+  <div class="lesson-cards" id="lessonCards"></div>
+</div>
+<div class="workspace">
+  <div class="explain-panel">
+    <div class="explain-header">
+      <div class="explain-lesson-title" id="lessonTitle">Select a lesson</div>
+      <div class="explain-step-counter" id="stepCounter">Step 0 / 0</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="explain-body" id="explainBody">
+      <div class="explain-text" style="color:var(--text-dim);text-align:center;padding-top:40px">Choose a lesson above to begin.</div>
+    </div>
+    <div class="explain-nav">
+      <button class="nav-btn" id="btnPrev" onclick="prevStep()" disabled>← Back</button>
+      <button class="nav-btn primary" id="btnNext" onclick="nextStep()">Next →</button>
+    </div>
+  </div>
+  <div class="canvas-area" id="canvasArea">
+    <div class="canvas-label">Flowchart</div>
+    <svg id="flowSVG" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="ah" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#9CA3AF"/></marker>
+        <marker id="ahy" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#059669"/></marker>
+        <marker id="ahn" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#DC2626"/></marker>
+      </defs>
+    </svg>
+    <div class="zoom-controls">
+      <button class="zoom-btn" onclick="zIn()">+</button>
+      <div class="zoom-level" id="zLvl">100%</div>
+      <button class="zoom-btn" onclick="zOut()">−</button>
+    </div>
+    <div class="footer-brand">Built with <a href="https://coderra.je" target="_blank">Coderra.je</a></div>
+  </div>
+  <div class="code-area">
+    <div class="code-area-header"><div class="dot"></div><span>Python</span></div>
+    <div class="code-display" id="codeDisplay"></div>
+  </div>
+</div>
+
+<script>
+// ── CONSTANTS ──
+const W=160,H=50,DW=180,DH=90,GAP=65,CX=300,SY=40,NO_X=260;
+const COL={start:{f:'#D1FAE5',s:'#059669'},stop:{f:'#D1FAE5',s:'#059669'},process:{f:'#DBEAFE',s:'#2563EB'},decision:{f:'#FEF3C7',s:'#D97706'},input:{f:'#EDE9FE',s:'#7C3AED'},output:{f:'#FCE7F3',s:'#DB2777'}};
+
+/*
+  Shape spec:
+  { type, text, varName?, condType?, noText?, bodyCount? }
+
+  bodyCount (decisions only): how many shapes AFTER this decision
+  are inside the Yes-branch body. The renderer uses this to:
+  - Draw the Yes arrow to the next shape
+  - Draw the loop-back arrow from shape[i+bodyCount] back to the decision
+  - For while: draw No arrow to shape[i+bodyCount+1] (first node after loop)
+  - For if: draw No branch box, rejoin arrow to shape[i+bodyCount+1]
+*/
+
+// ── LESSONS ──
+const LESSONS = [
+{
+  id:'seq', num:'01', title:'Sequence — Greeting Program',
+  desc:'Build a simple program that asks for a name and says hello. Learn Start, Input, Output, and Stop shapes.',
+  direction:'fc',
+  steps:[
+    { shapes:[{type:'start',text:'Start'}],
+      code:['# Program Start'],
+      explain:`<div class="explain-shape-badge badge-start">⬭ Terminator — Start</div>
+        <div class="explain-text">Every flowchart begins with a <strong>Start</strong> terminator. This rounded rectangle tells us where the program begins.</div>
+        <div class="explain-highlight"><strong>Rule:</strong> Every flowchart must have exactly one Start and one Stop.</div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'input',text:'Enter your name',varName:'name'}],
+      code:['# Program Start','name = input("Enter your name")'],
+      explain:`<div class="explain-shape-badge badge-input">▱ Input</div>
+        <div class="explain-text">The <strong>parallelogram</strong> shape means <strong>input</strong> — the program is asking the user for data.</div>
+        <div class="explain-text">This asks: <code>"Enter your name"</code> and stores the answer in <code>name</code>.</div>
+        <div class="explain-text">In Python:</div>
+        <div class="explain-code-preview"><span class="old-line"># Program Start</span>\n<span class="new-line">name = input("Enter your name")</span></div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'input',text:'Enter your name',varName:'name'},{type:'output',text:'"Hello, " + name'}],
+      code:['# Program Start','name = input("Enter your name")','print("Hello, " + name)'],
+      explain:`<div class="explain-shape-badge badge-output">▱ Output</div>
+        <div class="explain-text">Another <strong>parallelogram</strong>, but for <strong>output</strong> — displaying information to the user.</div>
+        <div class="explain-text">In Python, output uses <code>print()</code>:</div>
+        <div class="explain-code-preview"><span class="old-line"># Program Start</span>\n<span class="old-line">name = input("Enter your name")</span>\n<span class="new-line">print("Hello, " + name)</span></div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'input',text:'Enter your name',varName:'name'},{type:'output',text:'"Hello, " + name'},{type:'stop',text:'Stop'}],
+      code:['# Program Start','name = input("Enter your name")','print("Hello, " + name)','# Program End'],
+      explain:`<div class="explain-shape-badge badge-start">⬭ Terminator — Stop</div>
+        <div class="explain-text">The <strong>Stop</strong> terminator ends the program. Same rounded shape as Start.</div>
+        <div class="explain-text">This is a <strong>sequence</strong> — each step runs one after another, top to bottom.</div>
+        <div class="explain-highlight"><strong>Key concept:</strong> Sequence = instructions run in order. The arrows show flow direction.</div>`}
+  ]
+},
+{
+  id:'sel', num:'02', title:'Selection — Age Checker',
+  desc:'Use a decision diamond with Yes/No branches. Learn how if/else works in flowcharts and Python.',
+  direction:'fc',
+  steps:[
+    { shapes:[{type:'start',text:'Start'}],
+      code:['# Program Start'],
+      explain:`<div class="explain-shape-badge badge-start">⬭ Start</div>
+        <div class="explain-text">This program checks if someone is old enough to vote. Let's build it.</div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'input',text:'Enter your age',varName:'age'}],
+      code:['# Program Start','age = input("Enter your age")'],
+      explain:`<div class="explain-shape-badge badge-input">▱ Input</div>
+        <div class="explain-text">Ask the user for their <strong>age</strong>.</div>
+        <div class="explain-text">Remember: <code>input()</code> always returns text, so we'll need to convert it.</div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'input',text:'Enter your age',varName:'age'},{type:'process',text:'age = int(age)'}],
+      code:['# Program Start','age = input("Enter your age")','age = int(age)'],
+      explain:`<div class="explain-shape-badge badge-process">▭ Process</div>
+        <div class="explain-text">Convert <code>age</code> from text to a number using <code>int()</code>.</div>
+        <div class="explain-highlight"><strong>Common mistake:</strong> Forgetting <code>int()</code> before comparing. <code>"18" >= 18</code> causes an error!</div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'input',text:'Enter your age',varName:'age'},{type:'process',text:'age = int(age)'},{type:'decision',text:'age >= 18',condType:'if',noText:'print("Too young")',bodyCount:1}],
+      code:['# Program Start','age = input("Enter your age")','age = int(age)','if age >= 18:'],
+      explain:`<div class="explain-shape-badge badge-decision">◇ Decision</div>
+        <div class="explain-text">The <strong>diamond</strong> asks a Yes/No question: <strong>Is age >= 18?</strong></div>
+        <div class="explain-text">Two paths come out:</div>
+        <div class="explain-text">• <strong style="color:var(--green)">Yes ↓</strong> — condition is true, go down<br>• <strong style="color:var(--red)">No →</strong> — condition is false, go right</div>
+        <div class="explain-highlight"><strong>GCSE rule:</strong> A decision diamond ALWAYS has exactly two exits — Yes and No.</div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'input',text:'Enter your age',varName:'age'},{type:'process',text:'age = int(age)'},{type:'decision',text:'age >= 18',condType:'if',noText:'print("Too young")',bodyCount:1},{type:'output',text:'"You can vote!"'}],
+      code:['# Program Start','age = input("Enter your age")','age = int(age)','if age >= 18:','    print("You can vote!")','else:','    print("Too young")'],
+      explain:`<div class="explain-shape-badge badge-output">▱ Output (Yes branch)</div>
+        <div class="explain-text">The <strong style="color:var(--green)">Yes</strong> path goes to: <code>"You can vote!"</code></div>
+        <div class="explain-text">The <strong style="color:var(--red)">No</strong> path goes to: <code>print("Too young")</code></div>
+        <div class="explain-text">In Python:</div>
+        <div class="explain-code-preview"><span class="old-line">if age >= 18:</span>\n<span class="new-line">    print("You can vote!")</span>\n<span class="new-line">else:</span>\n<span class="new-line">    print("Too young")</span></div>
+        <div class="explain-highlight"><strong>Selection:</strong> The program chooses which path to take. Only ONE branch runs — never both!</div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'input',text:'Enter your age',varName:'age'},{type:'process',text:'age = int(age)'},{type:'decision',text:'age >= 18',condType:'if',noText:'print("Too young")',bodyCount:1},{type:'output',text:'"You can vote!"'},{type:'stop',text:'Stop'}],
+      code:['# Program Start','age = input("Enter your age")','age = int(age)','if age >= 18:','    print("You can vote!")','else:','    print("Too young")','# Program End'],
+      explain:`<div class="explain-shape-badge badge-start">⬭ Stop</div>
+        <div class="explain-text">Both branches rejoin and reach <strong>Stop</strong>. The No branch arrow comes back to merge with the main flow.</div>
+        <div class="explain-text">Complete program:</div>
+        <div class="explain-code-preview"><span class="old-line"># Program Start</span>\n<span class="old-line">age = input("Enter your age")</span>\n<span class="old-line">age = int(age)</span>\n<span class="old-line">if age >= 18:</span>\n<span class="old-line">    print("You can vote!")</span>\n<span class="old-line">else:</span>\n<span class="old-line">    print("Too young")</span>\n<span class="new-line"># Program End</span></div>`}
+  ]
+},
+{
+  id:'iter', num:'03', title:'Iteration — Countdown Loop',
+  desc:'Build a while loop that counts down from 5. Learn how loops are shown in flowcharts.',
+  direction:'fc',
+  steps:[
+    { shapes:[{type:'start',text:'Start'}],
+      code:['# Program Start'],
+      explain:`<div class="explain-shape-badge badge-start">⬭ Start</div>
+        <div class="explain-text">This program counts down from 5 to 1, then says "Go!".</div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'process',text:'count = 5'}],
+      code:['# Program Start','count = 5'],
+      explain:`<div class="explain-shape-badge badge-process">▭ Process</div>
+        <div class="explain-text">Set our starting value: <code>count = 5</code>. This is called <strong>initialisation</strong>.</div>
+        <div class="explain-highlight"><strong>Important:</strong> Without initialisation, Python would give a NameError because <code>count</code> wouldn't exist yet!</div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'process',text:'count = 5'},{type:'decision',text:'count > 0',condType:'while',noText:'',bodyCount:2}],
+      code:['# Program Start','count = 5','while count > 0:'],
+      explain:`<div class="explain-shape-badge badge-decision">◇ Decision (Loop)</div>
+        <div class="explain-text">The diamond asks: <strong>Is count > 0?</strong></div>
+        <div class="explain-text">This is a <strong>while loop</strong>:</div>
+        <div class="explain-text">• <strong style="color:var(--green)">Yes ↓</strong> — do the body, then <em>come back up</em> to check again<br>• <strong style="color:var(--red)">No →</strong> — exit the loop, continue to the next shape</div>
+        <div class="explain-highlight"><strong>Key concept:</strong> In a loop, the Yes branch eventually loops BACK to the decision. The arrow goes up!</div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'process',text:'count = 5'},{type:'decision',text:'count > 0',condType:'while',noText:'',bodyCount:2},{type:'output',text:'count'}],
+      code:['# Program Start','count = 5','while count > 0:','    print(count)'],
+      explain:`<div class="explain-shape-badge badge-output">▱ Output (inside loop)</div>
+        <div class="explain-text">Inside the loop, we <strong>print the current count</strong>.</div>
+        <div class="explain-text">This is <em>indented</em> in Python — it's inside the while body.</div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'process',text:'count = 5'},{type:'decision',text:'count > 0',condType:'while',noText:'',bodyCount:2},{type:'output',text:'count'},{type:'process',text:'count = count - 1'}],
+      code:['# Program Start','count = 5','while count > 0:','    print(count)','    count = count - 1'],
+      explain:`<div class="explain-shape-badge badge-process">▭ Process (inside loop)</div>
+        <div class="explain-text"><code>count = count - 1</code> decreases the counter each time.</div>
+        <div class="explain-text">After this, the arrow goes <strong>back up</strong> to the decision diamond to check again.</div>
+        <div class="explain-highlight"><strong>Warning:</strong> Without this line, count stays at 5 forever — an <strong>infinite loop</strong>!</div>
+        <div class="explain-text">The loop runs: 5→4→3→2→1→ then count=0, condition is No, and we exit.</div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'process',text:'count = 5'},{type:'decision',text:'count > 0',condType:'while',noText:'',bodyCount:2},{type:'output',text:'count'},{type:'process',text:'count = count - 1'},{type:'output',text:'"Go!"'},{type:'stop',text:'Stop'}],
+      code:['# Program Start','count = 5','while count > 0:','    print(count)','    count = count - 1','print("Go!")','# Program End'],
+      explain:`<div class="explain-shape-badge badge-start">⬭ Complete program</div>
+        <div class="explain-text">When the loop exits (<strong style="color:var(--red)">No</strong> path), we reach <code>print("Go!")</code> then Stop.</div>
+        <div class="explain-text">Output:</div>
+        <div class="explain-code-preview">5\n4\n3\n2\n1\nGo!</div>
+        <div class="explain-highlight"><strong>Three constructs:</strong><br>Lesson 1 = <strong>Sequence</strong> (one after another)<br>Lesson 2 = <strong>Selection</strong> (if/else branching)<br>Lesson 3 = <strong>Iteration</strong> (looping/repeating)</div>`}
+  ]
+},
+{
+  id:'py2fc', num:'04', title:'Python → Flowchart',
+  desc:'Start from Python code and see the flowchart build. Learn to read code and visualise it.',
+  direction:'py',
+  steps:[
+    { shapes:[],
+      code:['total = 0'],
+      explain:`<div class="explain-text">This time we start with <strong>Python code</strong> and build the flowchart from it.</div>
+        <div class="explain-text">First line: <code>total = 0</code></div>
+        <div class="explain-text">What shape? It sets a variable — that's a <strong>process</strong> (rectangle).</div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'process',text:'total = 0'}],
+      code:['total = 0'],
+      explain:`<div class="explain-shape-badge badge-process">▭ total = 0</div>
+        <div class="explain-text">We add Start (always!) then a <strong>process rectangle</strong>.</div>
+        <div class="explain-highlight"><strong>Rule:</strong> Any line with <code>=</code> that isn't <code>input()</code> or <code>print()</code> is a Process.</div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'process',text:'total = 0'},{type:'input',text:'Enter a number',varName:'num'}],
+      code:['total = 0','num = input("Enter a number")'],
+      explain:`<div class="explain-shape-badge badge-input">▱ Input</div>
+        <div class="explain-text"><code>num = input(...)</code> — we see <code>input()</code>, so it's a <strong>parallelogram</strong>.</div>
+        <div class="explain-highlight"><strong>How to spot it:</strong> <code>input()</code> → input parallelogram. <code>print()</code> → output parallelogram.</div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'process',text:'total = 0'},{type:'input',text:'Enter a number',varName:'num'},{type:'process',text:'total = total + int(num)'}],
+      code:['total = 0','num = input("Enter a number")','total = total + int(num)'],
+      explain:`<div class="explain-shape-badge badge-process">▭ Process</div>
+        <div class="explain-text"><code>total = total + int(num)</code> — uses <code>=</code> with a calculation, so it's a <strong>process</strong>.</div>`},
+    { shapes:[{type:'start',text:'Start'},{type:'process',text:'total = 0'},{type:'input',text:'Enter a number',varName:'num'},{type:'process',text:'total = total + int(num)'},{type:'output',text:'"Total: " + str(total)'},{type:'stop',text:'Stop'}],
+      code:['total = 0','num = input("Enter a number")','total = total + int(num)','print("Total: " + str(total))'],
+      explain:`<div class="explain-shape-badge badge-output">▱ Output + Stop</div>
+        <div class="explain-text"><code>print()</code> = output parallelogram. Then Stop.</div>
+        <div class="explain-text">The complete mapping:</div>
+        <div class="explain-code-preview">Python              → Flowchart\n─────────────────────────────────\nvariable = value    → ▭ Process\nvariable = input()  → ▱ Input\nprint()             → ▱ Output\nif condition:       → ◇ Decision\nwhile condition:    → ◇ Decision (loop)\nStart of program    → ⬭ Start\nEnd of program      → ⬭ Stop</div>
+        <div class="explain-highlight"><strong>Exam tip:</strong> Go line by line and ask: "What kind of instruction is this?" Then pick the matching shape.</div>`}
+  ]
+}
+];
+
+// ── STATE ──
+let currentLesson=null,currentStep=0,zm=1;
+
+document.addEventListener('DOMContentLoaded',()=>{renderCards();setupZoom()});
+
+function renderCards(){
+  document.getElementById('lessonCards').innerHTML=LESSONS.map((l,i)=>`
+    <div class="lesson-card" onclick="startLesson(${i})">
+      <div class="lc-num">LESSON ${l.num}</div>
+      <div class="lc-title">${l.title}</div>
+      <div class="lc-desc">${l.desc}</div>
+      <div class="lc-dir ${l.direction}">${l.direction==='fc'?'Flowchart → Python':'Python → Flowchart'}</div>
+    </div>`).join('');
+}
+
+function startLesson(i){
+  currentLesson=LESSONS[i];currentStep=0;
+  document.querySelectorAll('.lesson-card').forEach((c,j)=>c.classList.toggle('active',j===i));
+  document.getElementById('lessonTitle').textContent=currentLesson.title;
+  renderStep();
+}
+
+function nextStep(){if(currentLesson&&currentStep<currentLesson.steps.length-1){currentStep++;renderStep()}}
+function prevStep(){if(currentLesson&&currentStep>0){currentStep--;renderStep()}}
+
+function renderStep(){
+  if(!currentLesson)return;
+  const step=currentLesson.steps[currentStep],total=currentLesson.steps.length;
+  document.getElementById('stepCounter').textContent=`Step ${currentStep+1} / ${total}`;
+  document.getElementById('progressFill').style.width=((currentStep+1)/total*100)+'%';
+  document.getElementById('btnPrev').disabled=currentStep===0;
+  const bn=document.getElementById('btnNext');
+  if(currentStep===total-1){bn.textContent='✓ Complete';bn.disabled=true}else{bn.textContent='Next →';bn.disabled=false}
+  document.getElementById('explainBody').innerHTML=step.explain;
+  drawChart(step.shapes);
+  renderCode(step.code,currentStep>0?currentLesson.steps[currentStep-1].code:[]);
+}
+
+// ── SVG HELPERS ──
+function el(tag,a={}){const e=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const[k,v]of Object.entries(a))e.setAttribute(k,v);return e}
+
+// ── RENDER FLOWCHART ──
+function drawChart(shapes){
+  const svg=document.getElementById('flowSVG');
+  const defs=svg.querySelector('defs').outerHTML;
+  svg.innerHTML=defs;
+  if(!shapes||!shapes.length)return;
+
+  // Position shapes vertically
+  let y=SY;
+  const nodes=shapes.map(s=>{
+    const w=s.type==='decision'?DW:W, h=s.type==='decision'?DH:H;
+    const n={...s,x:CX-w/2,y,w,h};
+    y+=h+GAP;
+    return n;
+  });
+
+  // Set SVG height to fit all shapes with padding
+  const totalHeight=y+80;
+  const totalWidth=CX+DW/2+NO_X+W+40; // enough for No-branch boxes
+  svg.setAttribute('viewBox',`0 0 ${totalWidth} ${totalHeight}`);
+  svg.setAttribute('width',totalWidth);
+  svg.setAttribute('height',totalHeight);
+  svg.style.height=totalHeight+'px';
+  svg.style.width=totalWidth+'px';
+
+  // ── DRAW ARROWS ──
+  for(let i=0;i<nodes.length-1;i++){
+    const from=nodes[i],to=nodes[i+1];
+    const fBot={x:from.x+from.w/2,y:from.y+from.h};
+    const tTop={x:to.x+to.w/2,y:to.y};
+
+    if(from.type==='decision'){
+      const bc=from.bodyCount||1; // how many shapes in Yes body
+      const fRight={x:from.x+from.w,y:from.y+from.h/2};
+
+      // ── YES arrow (green, down to next shape) ──
+      drawArrow(svg,fBot,tTop,'#059669','url(#ahy)');
+      svg.appendChild(Object.assign(el('text',{x:fBot.x+10,y:fBot.y+16,'font-family':'JetBrains Mono,monospace','font-size':'11','font-weight':'600',fill:'#059669'}),{textContent:'Yes'}));
+
+      if(from.condType==='while'){
+        // ── WHILE LOOP: No exits to first shape after loop body ──
+        const exitIdx=i+bc+1; // index of first shape after loop
+        if(exitIdx<nodes.length){
+          const exitNode=nodes[exitIdx];
+          const exitTop={x:exitNode.x+exitNode.w/2,y:exitNode.y};
+          // No arrow: right from diamond, then elbow down to exit node
+          const noMidX=fRight.x+NO_X-W/2+W/2;
+          svg.appendChild(el('path',{d:`M ${fRight.x} ${fRight.y} L ${noMidX} ${fRight.y} L ${noMidX} ${exitTop.y-20} L ${exitTop.x} ${exitTop.y-20} L ${exitTop.x} ${exitTop.y}`,stroke:'#DC2626','stroke-width':'1.8',fill:'none','marker-end':'url(#ahn)'}));
+        }
+        // No label
+        svg.appendChild(Object.assign(el('text',{x:fRight.x+8,y:fRight.y-8,'font-family':'JetBrains Mono,monospace','font-size':'11','font-weight':'600',fill:'#DC2626'}),{textContent:'No'}));
+
+        // ── Loop-back arrow from last body node back to decision ──
+        const lastBodyIdx=i+bc;
+        if(lastBodyIdx<nodes.length){
+          const lb=nodes[lastBodyIdx];
+          const lbLeft={x:lb.x,y:lb.y+lb.h/2};
+          const decLeft={x:from.x,y:from.y+from.h/2};
+          const loopX=from.x-50;
+          svg.appendChild(el('path',{d:`M ${lbLeft.x} ${lbLeft.y} L ${loopX} ${lbLeft.y} L ${loopX} ${decLeft.y} L ${decLeft.x} ${decLeft.y}`,stroke:'#059669','stroke-width':'1.5',fill:'none','stroke-dasharray':'5,3','marker-end':'url(#ahy)'}));
+        }
+      } else {
+        // ── IF/ELSE: No branch box on the right, then rejoin ──
+        const noBoxX=fRight.x+60, noBoxY=fRight.y-H/2, noBoxCX=noBoxX+W/2;
+        // No arrow to box
+        svg.appendChild(el('path',{d:`M ${fRight.x} ${fRight.y} L ${noBoxCX} ${fRight.y} L ${noBoxCX} ${noBoxY}`,stroke:'#DC2626','stroke-width':'1.8',fill:'none','stroke-dasharray':'6,3','marker-end':'url(#ahn)'}));
+        // No label
+        svg.appendChild(Object.assign(el('text',{x:fRight.x+8,y:fRight.y-8,'font-family':'JetBrains Mono,monospace','font-size':'11','font-weight':'600',fill:'#DC2626'}),{textContent:'No'}));
+        // No branch box
+        const noText=from.noText||'(No action)';
+        svg.appendChild(el('rect',{x:noBoxX,y:noBoxY,width:W,height:H,rx:4,fill:'#FEE2E2',stroke:'#DC2626','stroke-width':'1.5','stroke-dasharray':'4,2'}));
+        const nt=el('text',{x:noBoxCX,y:noBoxY+H/2+5,'text-anchor':'middle','font-family':'DM Sans,sans-serif','font-size':'12',fill:'#991B1B'});
+        nt.textContent=noText.length>18?noText.slice(0,16)+'…':noText;
+        svg.appendChild(nt);
+
+        // Rejoin arrow: from no-box bottom → elbow back to first shape after Yes body
+        const rejoinIdx=i+bc+1;
+        if(rejoinIdx<nodes.length){
+          const rejoin=nodes[rejoinIdx];
+          const rejoinTop={x:rejoin.x+rejoin.w/2,y:rejoin.y};
+          const nbBot={x:noBoxCX,y:noBoxY+H};
+          const midRY=rejoinTop.y-20;
+          svg.appendChild(el('path',{d:`M ${nbBot.x} ${nbBot.y} L ${nbBot.x} ${midRY} L ${rejoinTop.x} ${midRY} L ${rejoinTop.x} ${rejoinTop.y}`,stroke:'#DC2626','stroke-width':'1.5',fill:'none','stroke-dasharray':'6,3','marker-end':'url(#ah)'}));
+        }
+      }
+    } else {
+      // ── NORMAL arrow ──
+      drawArrow(svg,fBot,tTop,'#9CA3AF','url(#ah)');
+    }
+  }
+
+  // ── DRAW SHAPES ──
+  nodes.forEach((n,i)=>{
+    const g=el('g',{class:'flow-node'+(i===nodes.length-1?' highlight':''),'data-id':i});
+    const c=COL[n.type]||COL.process;
+    if(n.type==='start'||n.type==='stop'){
+      g.appendChild(el('rect',{x:n.x,y:n.y,width:W,height:H,rx:H/2,fill:c.f,stroke:c.s,'stroke-width':'2'}));
+    }else if(n.type==='decision'){
+      const cx=n.x+DW/2,cy=n.y+DH/2;
+      g.appendChild(el('polygon',{points:`${cx},${n.y} ${n.x+DW},${cy} ${cx},${n.y+DH} ${n.x},${cy}`,fill:c.f,stroke:c.s,'stroke-width':'2'}));
+    }else if(n.type==='input'||n.type==='output'){
+      const sk=12;
+      g.appendChild(el('polygon',{points:`${n.x+sk},${n.y} ${n.x+W},${n.y} ${n.x+W-sk},${n.y+H} ${n.x},${n.y+H}`,fill:c.f,stroke:c.s,'stroke-width':'2'}));
+    }else{
+      g.appendChild(el('rect',{x:n.x,y:n.y,width:W,height:H,rx:4,fill:c.f,stroke:c.s,'stroke-width':'2'}));
+    }
+    const t=el('text',{x:n.x+n.w/2,y:n.y+n.h/2+5,'text-anchor':'middle','font-family':'DM Sans,sans-serif','font-size':'13',fill:'#1F2937'});
+    t.textContent=n.text.length>20?n.text.slice(0,18)+'…':n.text;
+    g.appendChild(t);
+    svg.appendChild(g);
+    setTimeout(()=>g.classList.add('visible'),i*120);
+  });
+
+  // Auto-scroll canvas to show the last shape
+  const lastNode=nodes[nodes.length-1];
+  const scrollTarget=lastNode.y+lastNode.h+60;
+  const canvas=document.getElementById('canvasArea');
+  setTimeout(()=>{
+    canvas.scrollTo({top:Math.max(0,scrollTarget*zm-canvas.clientHeight+80),behavior:'smooth'});
+  },nodes.length*120+100);
+}
+
+function drawArrow(svg,from,to,color,marker){
+  const my=(from.y+to.y)/2;
+  svg.appendChild(el('path',{d:`M ${from.x} ${from.y} C ${from.x} ${my},${to.x} ${my},${to.x} ${to.y}`,stroke:color,'stroke-width':'1.8',fill:'none','marker-end':marker}));
+}
+
+// ── CODE PANEL ──
+function renderCode(lines,prev){
+  const cd=document.getElementById('codeDisplay');
+  const ps=new Set(prev||[]);
+  cd.innerHTML=lines.map((l,i)=>{
+    const isNew=!ps.has(l)||(i>=prev.length);
+    return`<span class="line ${isNew?'new':'old'}"><span class="line-num">${i+1}</span>${esc(l)}</span>`;
+  }).join('');
+  cd.scrollTop=cd.scrollHeight;
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+// ── ZOOM ──
+function setupZoom(){
+  document.getElementById('canvasArea').addEventListener('wheel',e=>{e.preventDefault();zm=Math.max(.3,Math.min(2.5,zm+(e.deltaY>0?-.08:.08)));apZ()},{passive:false});
+}
+function apZ(){const s=document.getElementById('flowSVG');s.style.transform=`scale(${zm})`;s.style.transformOrigin='top center';document.getElementById('zLvl').textContent=Math.round(zm*100)+'%'}
+function zIn(){zm=Math.min(2.5,zm+.15);apZ()}
+function zOut(){zm=Math.max(.3,zm-.15);apZ()}
+
+// ── KEYBOARD ──
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();nextStep()}
+  if(e.key==='ArrowLeft'){e.preventDefault();prevStep()}
+});
+</script>
+</body>
+</html>
